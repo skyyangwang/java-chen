@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<meta name="keywords" content="JS代码,导航菜单,焦点图片,网页特效,广告代码,SEO优化,建站技巧" />
+<meta name="description" content="我们为您提供-JS代码，网页图标，网页欣赏模板，SEO优化和各种建站技巧；懒人建站只收录实用和能提高用户体验的代码，我们只想解放出你的部分写代码时间来思考更高层次的设计，而不是要你懒惰、拼凑。" />
+<title>红色带二级滑动导航菜单_懒人建站</title>
+<link href="css/css.css" rel="stylesheet" type="text/css" />
+<script>
+//初始化
+var def="1";
+function mover(object){
+  //主菜单
+  var mm=document.getElementById("m_"+object);
+  mm.className="m_li_a";
+  //初始主菜单先隐藏效果
+  if(def!=0){
+    var mdef=document.getElementById("m_"+def);
+    mdef.className="m_li";
+  }
+  //子菜单
+  var ss=document.getElementById("s_"+object);
+  ss.style.display="block";
+  //初始子菜单先隐藏效果
+  if(def!=0){
+    var sdef=document.getElementById("s_"+def);
+    sdef.style.display="none";
+  }
+}
+
+function mout(object){
+  //主菜单
+  var mm=document.getElementById("m_"+object);
+  mm.className="m_li";
+  //初始主菜单还原效果
+  if(def!=0){
+    var mdef=document.getElementById("m_"+def);
+    mdef.className="m_li_a";
+  }
+  //子菜单
+  var ss=document.getElementById("s_"+object);
+  ss.style.display="none";
+  //初始子菜单还原效果
+  if(def!=0){
+    var sdef=document.getElementById("s_"+def);
+    sdef.style.display="block";
+  }
+}
+</script>
+</head>
+<body>
+<div id="menu">
+  <ul>
+    <li class="m_line"><img src="images/line1.gif" /></li>
+    <li id="m_1" class='m_li_a'><a href="#">财税首页</a></li>
+    <li class="m_line"><img src="images/line1.gif" /></li>
+    <li id="m_2" class='m_li' onmouseover='mover(2);' onmouseout='mout(2);'><a href="#">政务公开</a></li>
+    <li class="m_line"><img src="images/line1.gif" /></li>
+    <li id="m_3" class='m_li' onmouseover='mover(3);' onmouseout='mout(3);'><a href="#">网上办事</a></li>
+    <li class="m_line"><img src="images/line1.gif" /></li>
+    <li id="m_4" class='m_li' onmouseover='mover(4);' onmouseout='mout(4);'><a href="#">公告中心</a></li>
+    <li class="m_line"><img src="images/line1.gif" /></li>
+    <li id="m_5" class='m_li' onmouseover='mover(5);' onmouseout='mout(5);'><a href="#">法规中心</a></li>
+    <li class="m_line"><img src="images/line1.gif" /></li>
+    <li id="m_6" class='m_li' onmouseover='mover(6);' onmouseout='mout(6);'><a href="#">财税文化</a></li>
+    <li class="m_line"><img src="images/line1.gif" /></li>
+    <li id="m_7" class='m_li' onmouseover='mover(7);' onmouseout='mout(7);'><a href="#">专题宣传</a></li>
+    <li class="m_line"><img src="images/line1.gif" /></li>
+  </ul>
+</div>
+<div style="height:32px; background-color:#F1F1F1;">
+   <ul class="smenu">
+     <li style="padding-left:29px;" id="s_1" class='s_li_a'>欢迎光临乐清财税网，您是本站第2842位客人！</li>
+     <li style="padding-left:141px;" id="s_2" class='s_li' onmouseover='mover(2);' onmouseout='mout(2);'><a href="#">财税简介</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">机构设置</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">办事指南</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">税种简介</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">财税动态</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">公车动态</a></li>
+     <li style="padding-left:252px;" id="s_3" class='s_li' onmouseover='mover(3);' onmouseout='mout(3);'><a href="#">下载专区</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">上传专区</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="j#">申请报名</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">查询系统</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">咨询投诉</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">满意调查</a></li>
+     <li style="padding-left:362px;" id="s_4" class='s_li' onmouseover='mover(4);' onmouseout='mout(4);'><a href="#">最新公告</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">会计通知</a></li>
+     <li style="padding-left:474px;" id="s_5" class='s_li' onmouseover='mover(5);' onmouseout='mout(5);'><a href="#">最新政策</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">政策法规查询</a></li>
+     <li style="padding-left:447px;" id="s_6" class='s_li' onmouseover='mover(6);' onmouseout='mout(6);'><a href="#">税收宣传</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">队伍建设</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">文明创建</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#" target="_blank">青年论坛</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#">廉政课堂</a></li>
+     <li style="padding-left:696px;" id="s_7" class='s_li' onmouseover='mover(7);' onmouseout='mout(7);'><a href="#">专题宣传区</a></li>
+   </ul>
+</div>
+
+
+
+<!--下面只是说明与程序代码无关-->
+<div style="width:95%; height:auto; display:block; margin:0 auto; margin-top:30px; font-size:10pt; line-height:150%;">
+<span>本代码由<a href="http://www.51xuediannao.com" style="color:#F00;">懒人建站网 收集整理</a> </span><br>
+<a href="http://www.51xuediannao.com">懒人建站 http://www.51xuediannao.com</a><br /><br/>
+<span>我们为您提供-JS代码，网页图标，网页欣赏模板，SEO优化和各种建站技巧；</span><br />
+<span>懒人建站只收录实用和能提高用户体验的代码</span><br />
+<span>我们只想解放出你的部分写代码时间来思考更高层次的设计，而不是要你懒惰、拼凑。</span>
+</div>
+</body>
+</html>

@@ -1,0 +1,146 @@
+
+/* calendar styles */
+#calendar_div {
+	display: none;
+	border: 1px solid #6688CC;
+	z-index: 10; 
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	padding: 0;
+	margin: 0;
+}
+#calendar_div a {
+	cursor: pointer;
+	cursor: hand;
+	text-decoration: none;
+}
+button.calendar_trigger {
+	width: 25px;
+}
+img.calendar_trigger {
+	margin: 2px;
+	vertical-align: middle;
+}
+#calendar_control{
+	clear: both;
+	float: left;
+	width: 196px;
+	color: #000
+}
+ #calendar_links, #calendar_header, #calendar, #calendar_time {
+	clear: both;
+	float: left;
+	width: 195px;
+	color: #000
+}
+#calendar_control {
+	background: #eee;
+}
+#calendar_links {
+	  background: url("popup_title.gif") repeat scroll 0 0 transparent;
+}
+#calendar_control a, #calendar_links a {
+	//font-weight: bold;
+	font-size: 80%;
+	letter-spacing: 1px;
+	color: #000;
+	padding: 2px 5px;
+}
+#calendar_control a:hover {
+	background: #fdd;
+	color: #333;
+}
+#calendar_links a:hover, .calendar_titleRow a:hover {
+	background: #fdd;
+	color: #333;
+}
+
+#calendar_clear, #calendar_prev {
+	float: left;
+}
+#calendar_current1 {
+	float: left;
+	width: 80%;
+	text-align: center;
+}
+#calendar_close, #calendar_next {
+	float: right;
+}
+#calendar_header, #calendar_time {
+	background: url("popup_title.gif") repeat scroll 0 0 transparent;
+	text-align: center;
+	//font-weight: bold;
+}
+#calendar_header select, #calendar_time select ,#calendar_current1 select{
+	background: #fff;
+	color: #000;
+	border: 1px solid #6688CC;
+	 margin: 2px;
+	font-size: 12px;
+}
+#calendar {
+	background: #ccc;
+	text-align: center;
+	font-size: 100%;
+}
+#calendar a {
+	width: 60%;
+	display: block;
+}
+#calendar a:hover {
+	color: #eee;
+}
+#calendar .calendar_titleRow {
+	background: #fff;
+}
+#calendar .calendar_titleRow a {
+	color: #000;
+}
+#calendar .calendar_titleRow a:hover {
+	color: #000;
+	background: #fff;
+}
+#calendar .calendar_daysRow {
+	background: url("popup_title.gif") repeat scroll 0 0 transparent;
+	color: #666;
+}
+#calendar .calendar_daysCell {
+	border: 1px solid #fff;
+}
+#calendar .calendar_daysCell a {
+	color: #000;
+	//width: 100%;
+
+}
+#calendar .calendar_daysCell a:hover {
+	background: #d3d3d3;
+
+}
+#calendar .calendar_weekEndCell {
+	background: url("popup_title.gif") repeat scroll 0 0 transparent;
+}
+#calendar .calendar_daysCellOver  {
+	background: #d3d3d3;
+}
+#calendar .calendar_unselectable {
+	color: #fff;
+	background: #fff;
+}
+#calendar_today {
+	background: #FCEFA1 !important;
+}
+#calendar_currentDay {
+	background: #6688CC !important;
+}
+#calendar_cover {
+    display: none; /*sorry for IE5*/
+    display/**/: block; /*sorry for IE5*/
+    position: absolute; /*must have*/
+    z-index: -1; /*must have*/
+    filter: mask(); /*must have*/
+    top: -1px; /*must have*/
+    left: -1px; /*must have*/
+    width: 300px; /*must have to match width and borders*/
+    height: 300px; /*must have to match maximum height*/ 
+}
+

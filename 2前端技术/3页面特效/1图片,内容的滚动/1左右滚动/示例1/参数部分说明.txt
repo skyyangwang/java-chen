@@ -1,0 +1,14 @@
+JQuery图片滚动插件easyslider1.5,5中不同的滚动效果示例。其实不一定是图片，可以使任何内容，JS代码和HTML结构完全分离，在内容层中可以填写任意内容，定制非常方便。
+参数部分说明 
+
+auto true,当不进行任何操作时是否自动滚动，当进行操作后（如：点击下一张）将不会自己滚动 
+continuous true,是否到最后一张图片时自动跳回第一张，是第一张时按上一页跳到最后一张 
+controlsShow true, 上一页，下一页按钮是否显示 
+speed1000 ,切换图片过程的时间（单位：毫秒） 
+pause 2000,等待pause毫秒才进行图片切换 
+vertical false,是否垂直滚动 
+controlsBefore 'controlsBefore', 
+controlsAfter 'controlsAfter', 
+prevText '上一页', 
+lastText '下一页' 
+内容来自 脚本之家 www.jb51.net 

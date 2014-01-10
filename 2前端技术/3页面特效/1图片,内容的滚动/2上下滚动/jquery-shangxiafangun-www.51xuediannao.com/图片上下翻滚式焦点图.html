@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>图片上下翻滚式焦点图广告(基于jquery) - 懒人建站 http://www.51xuediannao.com</title>
+<meta name="keywords" content="JS代码,js特效代码大全,jquery特效,导航菜单代码,焦点幻灯片,企业网页设计欣赏" />
+<meta name="description" content="懒人建站为您提供-js特效代码大全，JS广告代码，导航菜单代码，企业网页设计欣赏，基于jquery的特效插件，焦点幻灯片代码和各种建站技巧。" />
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" >
+$(function(){
+     var len  = $(".num > li").length;
+	 var index = 0;
+	 var adTimer;
+	 $(".num li").mouseover(function(){
+		index  =   $(".num li").index(this);
+		showImg(index);
+	 }).eq(0).mouseover();
+	 //滑入 停止动画，滑出开始动画.
+	 $('.ad').hover(function(){
+			 clearInterval(adTimer);
+		 },function(){
+			 adTimer = setInterval(function(){
+			    showImg(index)
+				index++;
+				if(index==len){index=0;}
+			  } , 3000);
+	 }).trigger("mouseleave");
+})
+// 通过控制top ，来显示不同的幻灯片
+function showImg(index){
+        var adHeight = $(".ad").height();
+		$(".slider").stop(true,false).animate({top : -adHeight*index},1000);
+		$(".num li").removeClass("on")
+			.eq(index).addClass("on");
+}
+</script>
+</head>
+<body>
+<!--主体开始-->
+<div id="content">
+	<div class="ad" >
+		 <ul class="slider" >
+			<li><img src="1.gif"/></li>
+			<li><img src="2.gif"/></li>
+			<li><img src="3.gif"/></li>
+			<li><img src="4.gif"/></li>
+			<li><img src="5.gif"/></li>
+		  </ul>
+		  <ul class="num" >
+			<li>1</li>
+			<li>2</li>
+			<li>3</li>
+			<li>4</li>
+			<li>5</li>
+		  </ul>
+	</div>
+</div>
+<!--主体结束-->
+
+
+<!--下面只是说明与程序代码无关-->
+<div style="width:95%; height:auto; display:block; margin:0 auto; margin-top:30px; font-size:10pt; line-height:150%;">
+<span>本代码由<a href="http://www.51xuediannao.com" style="color:#F00;">懒人建站</a> 收集整理 我要学电脑.COM →www.51xuediannao.com </span><br>
+<a href="http://www.51xuediannao.com">懒人建站</a> http://www.51xuediannao.com<br/>
+<span>我们为您提供-
+<a href="http://www.51xuediannao.com">HTML+CSS模板</a>，
+<a href="http://www.51xuediannao.com">JS代码</a>，
+<a href="http://www.51xuediannao.com">网页特效</a>，
+<a href="http://www.51xuediannao.com">导航菜单</a>，
+<a href="http://www.51xuediannao.com">焦点幻灯片<a>，
+<a href="http://www.51xuediannao.com">网页欣赏</a>和
+<a href="http://www.51xuediannao.com">CSS技巧</a>；</span>
+<span>懒人建站只收录实用和能提高用户体验的代码</span>
+<span>我们只想解放出你的部分写代码时间来思考更高层次的设计，而不是要你懒惰、拼凑。</span>
+</div>
+</body>
+</html>

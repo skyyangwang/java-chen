@@ -1,0 +1,431 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>External Linking Demo - Sliding Tabs - jQuery Plugin</title>
+    
+    <!-- CSS -->                
+    <style type="text/css">
+		html { overflow:auto; }
+		body { font:13px/18px Arial, Helvetica, sans-serif; background-color:#f5f5f5; width:775px; margin:0 auto; }
+		body h1 { float:left; clear:both; font-size:18px; margin:35px 0 20px; }
+		div#ext_links { float:left; clear:both; width:775px; }		
+		div#ext_links a, div.text a { margin:0 6px; outline:none; text-decoration:none; color:#1ca5ec; }
+		div#ext_links a:hover, div.text a:hover { color:#fff; background-color:#363636; }
+		div#ext_links p { margin:0px; padding:10px 0 0; }
+	</style>
+    <link rel="stylesheet" type="text/css" href="slidingtabs-horizontal.css" />
+    <link rel="stylesheet" type="text/css" href="slidingtabs-vertical.css" />
+    
+    <!-- JavaScript -->
+
+    <script type="text/javascript" src="jsapi"></script><script type="text/javascript">                                                                                  google.load("jquery", "1.6.2");</script>
+    <script type="text/javascript" src="jquery.mousewheel.min.js"></script>
+	<script type="text/javascript" src="jquery.easing.1.3.js"></script>
+	<script type="text/javascript" src="jquery.slidingtabs.pack.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            // Horizontal Sliding Tabs demo
+            $('div#st_horizontal').slideTabs({
+                // Options
+                contentAnim: 'slideH',
+                contentAnimTime: 600,
+                contentEasing: 'easeInOutExpo',
+                tabsAnimTime: 300
+            });
+
+            // Vertical Sliding Tabs demo
+            $('div#st_vertical').slideTabs({
+                // Options
+                contentAnim: 'slideH',
+                contentAnimTime: 600,
+                contentEasing: 'easeInOutExpo',
+                orientation: 'vertical',
+                tabsAnimTime: 300
+            });
+
+        });		
+    </script>
+    
+
+</head>
+<body>       
+    
+    <h1>External linking</h1>
+    
+    <div id="ext_links">
+     
+        <p>External links for the horizontal tabs:<a class="st_ext" href="#tab_1" rel="st_horizontal">Tab #1</a>|<a class="st_ext" href="#tab_2" rel="st_horizontal">Tab #2</a>|<a class="st_ext" href="#tab_3" rel="st_horizontal">Tab #3</a>|<a class="st_ext" href="#tab_4" rel="st_horizontal">Tab #4</a>|<a class="st_ext" href="#tab_5" rel="st_horizontal">Tab #5</a>|<a class="st_ext" href="#tab_6" rel="st_horizontal">Tab #6</a>|<a class="st_ext" href="#tab_7" rel="st_horizontal">Tab #7</a>|<a class="st_ext" href="#tab_8" rel="st_horizontal">Tab #8</a></p>
+
+        
+        <p>External links for the vertical tabs:<a class="st_ext" href="#v_tab_1" rel="st_vertical">Tab #1</a>|<a class="st_ext" href="#v_tab_2" rel="st_vertical">Tab #2</a>|<a class="st_ext" href="#v_tab_3" rel="st_vertical">Tab #3</a>|<a class="st_ext" href="#v_tab_4" rel="st_vertical">Tab #4</a>|<a class="st_ext" href="#v_tab_5" rel="st_vertical">Tab #5</a>|<a class="st_ext" href="#v_tab_6" rel="st_vertical">Tab #6</a>|<a class="st_ext" href="#v_tab_7" rel="st_vertical">Tab #7</a>|<a class="st_ext" href="#v_tab_8" rel="st_vertical">Tab #8</a></p>
+
+     
+    </div>
+        
+    <h1>Horizontal demo</h1>                     
+            
+    <!-- Start HTML - Horizontal tabs -->
+    <div id="st_horizontal" class="st_horizontal">                                                                                      				                                
+                        
+        <div class="st_tabs_container">                                                                                                                                          
+            
+            <a href="#prev" class="st_prev"></a>
+            
+            <div class="st_slide_container">
+            
+                <ul class="st_tabs">
+                    <li><a href="#st_content_1" rel="tab_1" class="st_tab st_first_tab st_tab_active">Horizontal Tab #1</a></li>
+
+                    <li><a href="#st_content_2" rel="tab_2" class="st_tab">Horizontal Tab #2</a></li>                                     
+                    <li><a href="#st_content_3" rel="tab_3" class="st_tab">Horizontal Tab #3</a></li>
+                    <li><a href="#st_content_4" rel="tab_4" class="st_tab">Horizontal Tab #4</a></li>
+                    <li><a href="#st_content_5" rel="tab_5" class="st_tab">Horizontal Tab #5</a></li>                                                       
+                    <li><a href="#st_content_6" rel="tab_6" class="st_tab">Horizontal Tab #6</a></li>
+                    <li><a href="#st_content_7" rel="tab_7" class="st_tab">Horizontal Tab #7</a></li>
+                    <li><a href="#st_content_8" rel="tab_8" class="st_tab">Horizontal Tab #8</a></li>                                                            
+                </ul>
+
+            
+            </div> <!-- /.st_slide_container -->
+            
+            <a href="#next" class="st_next"></a>                                                                                                
+        
+        </div> <!-- /.st_tabs_container -->                                                                                             
+       
+        <div class="st_view_container">
+        
+            <div class="st_view">
+                        
+                <div id="st_content_1" class="st_tab_view st_first_tab_view">
+                    <h2>Horizontal Tab #1</h2>
+                    
+                    <div class="text">                                                                                                  
+                        <a class="st_ext" href="#tab_2" rel="st_horizontal">Tab #2</a>
+
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat praesent, ut fermentum lacus turpis cras. Justo gravida erat quam mauris purus, aliquam quisque, eget nisl. Pellentesque nibh duis odio morbi quam, scelerisque convallis aenean quam tincidunt ornare nam nec feugiat sodales tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo ullamcorper aenean erat. Nullam vel justo in neque porttitor eget laoreet. Aenean lacus adipiscing.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam vel justo cras porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing nonummy, eget non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus tincidunt diam nec eget urna.</p>
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor curabitur, justo arcu nisl, natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu.</p>
+                    </div>                            
+                </div>
+                
+                <div id="st_content_2" class="st_tab_view">
+
+                    <h2>Horizontal Tab #2</h2>
+                    
+                    <div class="text">                        
+                        <a class="st_ext" href="#tab_1" rel="st_horizontal">Tab #1</a>|<a class="st_ext" href="#tab_3" rel="st_horizontal">Tab #3</a>
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat praesent, ut fermentum lacus turpis cras. Justo gravida erat quam mauris purus, aliquam quisque, eget nisl. Pellentesque nibh duis odio morbi quam, scelerisque convallis aenean quam tincidunt ornare nam nec feugiat sodales tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo ullamcorper aenean erat. Nullam vel justo in neque porttitor eget laoreet. Aenean lacus adipiscing.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam vel justo cras porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing nonummy, eget non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus tincidunt diam nec eget urna.</p>
+
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor curabitur, justo arcu nisl, natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu.</p>
+                    </div>
+                </div>
+                
+                <div id="st_content_3" class="st_tab_view">
+                    <h2>Horizontal Tab #3</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#tab_2" rel="st_horizontal">Tab #2</a>|<a class="st_ext" href="#tab_4" rel="st_horizontal">Tab #4</a>
+
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat praesent, ut fermentum lacus turpis cras. Justo gravida erat quam mauris purus, aliquam quisque, eget nisl. Pellentesque nibh duis odio morbi quam, scelerisque convallis aenean quam tincidunt ornare nam nec feugiat sodales tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo ullamcorper aenean erat. Nullam vel justo in neque porttitor eget laoreet. Aenean lacus adipiscing.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam vel justo cras porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing nonummy, eget non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus tincidunt diam nec eget urna.</p>
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor curabitur, justo arcu nisl, natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu.</p>
+                    </div>
+                </div>
+                
+                <div id="st_content_4" class="st_tab_view">
+
+                    <h2>Horizontal Tab #4</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#tab_3" rel="st_horizontal">Tab #3</a>|<a class="st_ext" href="#tab_5" rel="st_horizontal">Tab #5</a>
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat praesent, ut fermentum lacus turpis cras. Justo gravida erat quam mauris purus, aliquam quisque, eget nisl. Pellentesque nibh duis odio morbi quam, scelerisque convallis aenean quam tincidunt ornare nam nec feugiat sodales tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo ullamcorper aenean erat. Nullam vel justo in neque porttitor eget laoreet. Aenean lacus adipiscing.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam vel justo cras porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing nonummy, eget non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus tincidunt diam nec eget urna.</p>
+
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor curabitur, justo arcu nisl, natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu.</p>
+                    </div>
+                </div>
+                
+                <div id="st_content_5" class="st_tab_view">
+                    <h2>Horizontal Tab #5</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#tab_4" rel="st_horizontal">Tab #4</a>|<a class="st_ext" href="#tab_6" rel="st_horizontal">Tab #6</a>
+
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat praesent, ut fermentum lacus turpis cras. Justo gravida erat quam mauris purus, aliquam quisque, eget nisl. Pellentesque nibh duis odio morbi quam, scelerisque convallis aenean quam tincidunt ornare nam nec feugiat sodales tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo ullamcorper aenean erat. Nullam vel justo in neque porttitor eget laoreet. Aenean lacus adipiscing.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam vel justo cras porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing nonummy, eget non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus tincidunt diam nec eget urna.</p>
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor curabitur, justo arcu nisl, natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu.</p>
+                    </div>
+                </div>
+                
+                <div id="st_content_6" class="st_tab_view">
+
+                    <h2>Horizontal Tab #6</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#tab_5" rel="st_horizontal">Tab #5</a>|<a class="st_ext" href="#tab_7" rel="st_horizontal">Tab #7</a>
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat praesent, ut fermentum lacus turpis cras. Justo gravida erat quam mauris purus, aliquam quisque, eget nisl. Pellentesque nibh duis odio morbi quam, scelerisque convallis aenean quam tincidunt ornare nam nec feugiat sodales tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo ullamcorper aenean erat. Nullam vel justo in neque porttitor eget laoreet. Aenean lacus adipiscing.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam vel justo cras porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing nonummy, eget non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus tincidunt diam nec eget urna.</p>
+
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor curabitur, justo arcu nisl, natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu.</p>
+                    </div>
+                </div>
+                
+                <div id="st_content_7" class="st_tab_view">
+                    <h2>Horizontal Tab #7</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#tab_6" rel="st_horizontal">Tab #6</a>|<a class="st_ext" href="#tab_8" rel="st_horizontal">Tab #8</a>
+
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat praesent, ut fermentum lacus turpis cras. Justo gravida erat quam mauris purus, aliquam quisque, eget nisl. Pellentesque nibh duis odio morbi quam, scelerisque convallis aenean quam tincidunt ornare nam nec feugiat sodales tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo ullamcorper aenean erat. Nullam vel justo in neque porttitor eget laoreet. Aenean lacus adipiscing.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam vel justo cras porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing nonummy, eget non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus tincidunt diam nec eget urna.</p>
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor curabitur, justo arcu nisl, natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu.</p>
+                    </div>
+                </div>
+                
+                <div id="st_content_8" class="st_tab_view">
+
+                    <h2>Horizontal Tab #8</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#tab_7" rel="st_horizontal">Tab #7</a>
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat praesent, ut fermentum lacus turpis cras. Justo gravida erat quam mauris purus, aliquam quisque, eget nisl. Pellentesque nibh duis odio morbi quam, scelerisque convallis aenean quam tincidunt ornare nam nec feugiat sodales tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo ullamcorper aenean erat. Nullam vel justo in neque porttitor eget laoreet. Aenean lacus adipiscing.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam vel justo cras porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing nonummy, eget non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus tincidunt diam nec eget urna.</p>
+
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor curabitur, justo arcu nisl, natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu.</p>
+                    </div>
+                </div>                                
+            
+            </div> <!-- /.st_view -->
+         
+        </div> <!-- /.st_view_container -->                                                          
+    
+    </div> <!-- /#st_horizontal -->        
+    <!-- End HTML - Horizontal tabs -->
+    
+    <h1>Vertical demo</h1>
+
+            
+    <!-- Start HTML - Vertical tabs -->
+    <div id="st_vertical" class="st_vertical">                        	                                                                                          
+                        
+        <div class="st_tabs_container">                               
+                                
+            <a href="#prev" class="st_prev"></a>
+            <a href="#next" class="st_next"></a>                                    					
+                                                                                                 
+            <div class="st_slide_container">
+            
+                <ul class="st_tabs">
+                    <li><a href="#stv_content_1" rel="v_tab_1" class="st_tab st_tab_active">Vertical Tab #1<span>Lorem ipsum dolor sit amet</span></a></li>
+                    <li><a href="#stv_content_2" rel="v_tab_2" class="st_tab">Vertical Tab #2<span>Lorem ipsum dolor sit amet</span></a></li>                                    
+                    <li><a href="#stv_content_3" rel="v_tab_3" class="st_tab">Vertical Tab #3<span>Lorem ipsum dolor sit amet</span></a></li>
+
+                    <li><a href="#stv_content_4" rel="v_tab_4" class="st_tab">Vertical Tab #4<span>Lorem ipsum dolor sit amet</span></a></li>
+                    <li><a href="#stv_content_5" rel="v_tab_5" class="st_tab">Vertical Tab #5<span>Lorem ipsum dolor sit amet</span></a></li>
+                    <li><a href="#stv_content_6" rel="v_tab_6" class="st_tab">Vertical Tab #6<span>Lorem ipsum dolor sit amet</span></a></li>
+                    <li><a href="#stv_content_7" rel="v_tab_7" class="st_tab">Vertical Tab #7<span>Lorem ipsum dolor sit amet</span></a></li>
+                    <li><a href="#stv_content_8" rel="v_tab_8" class="st_tab">Vertical Tab #8<span>Lorem ipsum dolor sit amet</span></a></li>
+
+                </ul>
+                
+            </div> <!-- /.st_slide_container -->                                                                                          
+        
+        </div> <!-- /.st_tabs_container -->                               
+        
+        <div class="st_view_container">
+        
+            <div class="st_view">
+                        
+                <div id="stv_content_1" class="st_tab_view st_first_tab_view">
+                    <h2>Vertical Tab #1</h2>
+                    
+                    <div class="text">                                                                                                   
+                        <a class="st_ext" href="#v_tab_2" rel="st_vertical">Tab #2</a>
+
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat, eu praesent, ut fermentum lacus turpis cras. Justo gravida erat quam praesent purus, aliquam quisque, eget nisl. Pellentesque scelerisque convallis tincidunt tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo arcu libero. Nullam justo neque porttitor laoreet. Aenean adipiscing nisi.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam justo in neque porttitor laoreet. Aenean lacus consequat adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare, massa.</p>
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor, justo arcu nisl, et natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu, purus wisi quis fringilla.</p>
+                    </div>                            
+                </div>
+                
+                <div id="stv_content_2" class="st_tab_view">
+
+                    <h2>Vertical Tab #2</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#v_tab_1" rel="st_vertical">Tab #1</a>|<a class="st_ext" href="#v_tab_3" rel="st_vertical">Tab #3</a>
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat, eu praesent, ut fermentum lacus turpis cras. Justo gravida erat quam praesent purus, aliquam quisque, eget nisl. Pellentesque scelerisque convallis tincidunt tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo arcu libero. Nullam justo neque porttitor laoreet. Aenean adipiscing nisi.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam justo in neque porttitor laoreet. Aenean lacus consequat adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare, massa.</p>
+
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor, justo arcu nisl, et natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu, purus wisi quis fringilla.</p>                                
+                    </div>
+                </div>
+                
+                <div id="stv_content_3" class="st_tab_view">
+                    <h2>Vertical Tab #3</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#v_tab_2" rel="st_vertical">Tab #2</a>|<a class="st_ext" href="#v_tab_4" rel="st_vertical">Tab #4</a>
+
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat, eu praesent, ut fermentum lacus turpis cras. Justo gravida erat quam praesent purus, aliquam quisque, eget nisl. Pellentesque scelerisque convallis tincidunt tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo arcu libero. Nullam justo neque porttitor laoreet. Aenean adipiscing nisi.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam justo in neque porttitor laoreet. Aenean lacus consequat adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare, massa.</p>
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor, justo arcu nisl, et natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu, purus wisi quis fringilla.</p>
+                    </div>
+                </div>
+                
+                <div id="stv_content_4" class="st_tab_view">
+
+                    <h2>Vertical Tab #4</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#v_tab_3" rel="st_vertical">Tab #3</a>|<a class="st_ext" href="#v_tab_5" rel="st_vertical">Tab #5</a>
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat, eu praesent, ut fermentum lacus turpis cras. Justo gravida erat quam praesent purus, aliquam quisque, eget nisl. Pellentesque scelerisque convallis tincidunt tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo arcu libero. Nullam justo neque porttitor laoreet. Aenean adipiscing nisi.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam justo in neque porttitor laoreet. Aenean lacus consequat adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare, massa.</p>
+
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor, justo arcu nisl, et natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu, purus wisi quis fringilla.</p>
+                    </div>
+                </div>
+                
+                <div id="stv_content_5" class="st_tab_view">
+                    <h2>Vertical Tab #5</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#v_tab_4" rel="st_vertical">Tab #4</a>|<a class="st_ext" href="#v_tab_6" rel="st_vertical">Tab #6</a>
+
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat, eu praesent, ut fermentum lacus turpis cras. Justo gravida erat quam praesent purus, aliquam quisque, eget nisl. Pellentesque scelerisque convallis tincidunt tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo arcu libero. Nullam justo neque porttitor laoreet. Aenean adipiscing nisi.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam justo in neque porttitor laoreet. Aenean lacus consequat adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare, massa.</p>
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor, justo arcu nisl, et natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu, purus wisi quis fringilla.</p>
+                    </div>
+                </div>
+                
+                <div id="stv_content_6" class="st_tab_view">
+
+                    <h2>Vertical Tab #6</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#v_tab_5" rel="st_vertical">Tab #5</a>|<a class="st_ext" href="#v_tab_7" rel="st_vertical">Tab #7</a>
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat, eu praesent, ut fermentum lacus turpis cras. Justo gravida erat quam praesent purus, aliquam quisque, eget nisl. Pellentesque scelerisque convallis tincidunt tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo arcu libero. Nullam justo neque porttitor laoreet. Aenean adipiscing nisi.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam justo in neque porttitor laoreet. Aenean lacus consequat adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare, massa.</p>
+
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor, justo arcu nisl, et natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu, purus wisi quis fringilla.</p>
+                    </div>
+                </div>
+                
+                <div id="stv_content_7" class="st_tab_view">
+                    <h2>Vertical Tab #7</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#v_tab_6" rel="st_vertical">Tab #6</a>|<a class="st_ext" href="#v_tab_8" rel="st_vertical">Tab #8</a>
+
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat, eu praesent, ut fermentum lacus turpis cras. Justo gravida erat quam praesent purus, aliquam quisque, eget nisl. Pellentesque scelerisque convallis tincidunt tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo arcu libero. Nullam justo neque porttitor laoreet. Aenean adipiscing nisi.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam justo in neque porttitor laoreet. Aenean lacus consequat adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare, massa.</p>
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor, justo arcu nisl, et natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu, purus wisi quis fringilla.</p>
+                    </div>
+                </div>
+                
+                <div id="stv_content_8" class="st_tab_view">
+
+                    <h2>Vertical Tab #8</h2>
+                    
+                    <div class="text">
+                        <a class="st_ext" href="#v_tab_7" rel="st_vertical">Tab #7</a>                        
+                        
+                        <p>Lorem ipsum dolor sit amet, duis netus ut posuere feugiat arcu, purus wisi quis fringilla at, nunc ut eget elit duis erat, eu praesent, ut fermentum lacus turpis cras. Justo gravida erat quam praesent purus, aliquam quisque, eget nisl. Pellentesque scelerisque convallis tincidunt tristique.</p>
+                        
+                        <blockquote><p>Aliquam commodo arcu libero. Nullam justo neque porttitor laoreet. Aenean adipiscing nisi.</p></blockquote>
+                                
+                        <p>Aliquam commodo ullamcorper erat. Nullam justo in neque porttitor laoreet. Aenean lacus consequat adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare, massa.</p>
+                        
+                        <p>Curabitur velit. Veniam donec orci viverra, lorem convallis in libero quisque, purus erat dolor, justo arcu nisl, et natoque velit euismod dapibus nulla semper. Suspendisse odio tempor. Id ornare nam nec feugiat, ac consectetuer magna, dolor enim vel in, pulvinar bibendum ante ac, dui nibh dui est neque lacinia et. Duis netus ut posuere feugiat arcu, purus wisi quis fringilla.</p>
+
+                    </div>
+                </div>                                                
+            
+            </div> <!-- /.st_view --> 
+         
+        </div> <!-- /.st_view_container -->                                                    	            
+    
+    </div> <!-- /#st_vertical -->                    
+    <!-- End HTML - Vertical tabs -->                                                                                                        
+   
+</body>
+</html>

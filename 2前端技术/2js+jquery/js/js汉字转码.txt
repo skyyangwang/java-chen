@@ -1,0 +1,20 @@
+
+js 汉字转码
+js对文字进行编码涉及3个函数：escape,encodeURI,encodeURIComponent，相应3个解码数：unescape,decodeURI,decodeURIComponent 
+
+1、 传递参数时需要使用encodeURIComponent，这样组合的url才不会被#等特殊字符截断。
+
+2、 进行url跳转时可以整体使用encodeURI 
+
+3、 js使用数据时可以使用escape 
+
+4、 escape对0-255以外的unicode值进行编码时输出%u****格式，其它情况下escape，encodeURI，encodeURIComponent编码结果相同。
+    escape不编码字符有69个：*，+，-，.，/，@，_，0-9，a- z，A-Z 
+    encodeURI不编码字符有82个：!，#，$，&，＇(，)，*，+，,，-，.，/，:，;，=，?，@，_，~，0-9，a- z，A-Z
+   encodeURIComponent不编码字符有71个：!， ＇，(，)，*，-，.，_，~，0-9，a-z，A-Z 
+
+//////////////////////////////////////////////////////////
+
+我的，
+旧的ajax中使用的是：escape(str)
+新的ajax使用encodeURIComponent(str)，escape转码错误；

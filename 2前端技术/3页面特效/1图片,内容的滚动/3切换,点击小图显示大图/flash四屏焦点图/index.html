@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<meta name="keywords" content="JS代码,焦点图,JS广告代码,JS特效代码" />
+<meta name="description" content="此代码内容为ChinaJoy的Flash四屏焦点图，属于站长常用代码，更多焦点图代码请访问懒人图库JS代码频道。" />
+<title>ChinaJoy的Flash四屏焦点图_懒人图库</title>
+</head>
+<body>
+
+<!-- 焦点flash -->
+<SCRIPT language=JavaScript src="js/focusxixi.js" type=text/javascript></SCRIPT>
+
+<SCRIPT language=JavaScript type=text/javascript>
+ss = new imgSlides();
+
+s = new imgInfo();
+s.smallpic = "images/s1.jpg";
+s.bigpic = "images/d1.jpg";
+s.link = "http://www.lanrentuku.com/";
+s.title = "新闻出版总署署长柳斌杰在高峰论坛讲话";
+ss.add(s);
+ 
+s = new imgInfo();
+s.smallpic = "images/s2.jpg";
+s.bigpic = "images/d2.jpg";
+s.link = "http://www.lanrentuku.com/";
+s.title = "高峰论坛主题征集";
+ss.add(s);
+ 
+s = new imgInfo();
+s.smallpic = "images/s3.jpg";
+s.bigpic = "images/d3.jpg";
+s.link = "http://www.lanrentuku.com/";
+s.title = "海外休闲游戏如何立足中国？";
+ss.add(s);
+ 
+s = new imgInfo();
+s.smallpic = "images/s4.jpg";
+s.bigpic = "images/d4.jpg";
+s.link = "http://www.lanrentuku.com/";
+s.title = "投资新热点";
+ss.add(s);
+
+
+smallpics = ss.getSmallPics();
+bigpics = ss.getBigPics();
+links = ss.getLinks();
+titles = ss.getTitles();
+des = ss.getDes();
+
+
+document.write("<object classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" codebase=\"http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,19,0\" width=\"326\" height=\"327\">");
+document.write("  <param name=\"movie\" value=\"focus.swf\" />");
+document.write("  <param name=\"quality\" value=\"high\" />");
+document.write("  <param name=\"FlashVars\" value=\"spics="+smallpics+"&bpics="+bigpics+"&urls="+links+"&titles="+titles+"&describe="+des+"\" />");
+document.write("  <embed src=\"focus.swf\" width=\"326\" height=\"327\" quality=\"high\" pluginspage=\"http://www.macromedia.com/go/getflashplayer\" type=\"application/x-shockwave-flash\" flashvars=\"spics="+smallpics+"&bpics="+bigpics+"&urls="+links+"&titles="+titles+"&describe="+des+"\"></embed>");
+document.write("</object>");
+
+</SCRIPT>
+<!-- 焦点flash结束 -->
+
+</body>
+</html>

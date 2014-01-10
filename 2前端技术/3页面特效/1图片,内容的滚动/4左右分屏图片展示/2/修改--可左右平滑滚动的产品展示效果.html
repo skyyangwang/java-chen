@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>图片</title>
+
+    <script language="javascript">
+<!--
+//图片滚动列表 mengjia 070927
+var Speed_1 = 10; //速度(毫秒)
+var Space_1 = 20; //每次移动(px)
+var PageWidth_1 = 189 * 5; //翻页宽度
+var interval_1 = 7000; //翻页间隔
+var fill_1 = 0; //整体移位
+var MoveLock_1 = false;
+var MoveTimeObj_1;
+var MoveWay_1="right";
+var Comp_1 = 0;
+var AutoPlayObj_1=null;
+function GetObj(objName){if(document.getElementById){return eval('document.getElementById("'+objName+'")')}else{return eval('document.all.'+objName)}}
+function AutoPlay_1(){clearInterval(AutoPlayObj_1);AutoPlayObj_1=setInterval('ISL_GoDown_1();ISL_StopDown_1();',interval_1)}
+function ISL_GoUp_1(){if(MoveLock_1)return;clearInterval(AutoPlayObj_1);MoveLock_1=true;MoveWay_1="left";MoveTimeObj_1=setInterval('ISL_ScrUp_1();',Speed_1);}
+function ISL_StopUp_1(){if(MoveWay_1 == "right"){return};clearInterval(MoveTimeObj_1);if((GetObj('ISL_Cont_1').scrollLeft-fill_1)%PageWidth_1!=0){Comp_1=fill_1-(GetObj('ISL_Cont_1').scrollLeft%PageWidth_1);CompScr_1()}else{MoveLock_1=false}
+AutoPlay_1()}
+function ISL_ScrUp_1(){if(GetObj('ISL_Cont_1').scrollLeft<=0){GetObj('ISL_Cont_1').scrollLeft=GetObj('ISL_Cont_1').scrollLeft+GetObj('List1_1').offsetWidth}
+GetObj('ISL_Cont_1').scrollLeft-=Space_1}
+function ISL_GoDown_1(){clearInterval(MoveTimeObj_1);if(MoveLock_1)return;clearInterval(AutoPlayObj_1);MoveLock_1=true;MoveWay_1="right";ISL_ScrDown_1();MoveTimeObj_1=setInterval('ISL_ScrDown_1()',Speed_1)}
+function ISL_StopDown_1(){if(MoveWay_1 == "left"){return};clearInterval(MoveTimeObj_1);if(GetObj('ISL_Cont_1').scrollLeft%PageWidth_1-(fill_1>=0?fill_1:fill_1+1)!=0){Comp_1=PageWidth_1-GetObj('ISL_Cont_1').scrollLeft%PageWidth_1+fill_1;CompScr_1()}else{MoveLock_1=false}
+AutoPlay_1()}
+function ISL_ScrDown_1(){if(GetObj('ISL_Cont_1').scrollLeft>=GetObj('List1_1').scrollWidth){GetObj('ISL_Cont_1').scrollLeft=GetObj('ISL_Cont_1').scrollLeft-GetObj('List1_1').scrollWidth}
+GetObj('ISL_Cont_1').scrollLeft+=Space_1}
+function CompScr_1(){if(Comp_1==0){MoveLock_1=false;return}
+var num,TempSpeed=Speed_1,TempSpace=Space_1;if(Math.abs(Comp_1)<PageWidth_1/2){TempSpace=Math.round(Math.abs(Comp_1/Space_1));if(TempSpace<1){TempSpace=1}}
+if(Comp_1<0){if(Comp_1<-TempSpace){Comp_1+=TempSpace;num=TempSpace}else{num=-Comp_1;Comp_1=0}
+GetObj('ISL_Cont_1').scrollLeft-=num;setTimeout('CompScr_1()',TempSpeed)}else{if(Comp_1>TempSpace){Comp_1-=TempSpace;num=TempSpace}else{num=Comp_1;Comp_1=0}
+GetObj('ISL_Cont_1').scrollLeft+=num;setTimeout('CompScr_1()',TempSpeed)}}
+function picrun_ini(){
+GetObj("List2_1").innerHTML=GetObj("List1_1").innerHTML;
+GetObj('ISL_Cont_1').scrollLeft=fill_1>=0?fill_1:GetObj('List1_1').scrollWidth-Math.abs(fill_1);
+GetObj("ISL_Cont_1").onmouseover=function(){clearInterval(AutoPlayObj_1)}
+GetObj("ISL_Cont_1").onmouseout=function(){AutoPlay_1()}
+AutoPlay_1();
+}
+//产品展示滚动图片结束
+//-->
+    </script>
+
+    <style type="text/css">
+        .borderDiv
+        {
+            border: #e3e3e3 1px solid;
+            margin-top: 8px;
+            font-size: 12px;
+            background: #f3f3f3;
+            overflow: hidden;
+            width: 998px;
+            zoom: 1;
+        }
+        .borderDiv .pcont
+        {
+            float: left;
+            overflow: hidden;
+            width: 950px;
+        }
+        .borderDiv .ScrCont
+        {
+            width: 32766px;
+            zoom: 1;
+        }
+        .borderDiv #List1_1
+        {
+            float: left;
+        }
+        .borderDiv #List2_1
+        {
+            float: left;
+        }
+        .borderDiv .LeftBotton
+        {
+            background: url(images2/left.gif) no-repeat;
+            float: left;
+            margin: 10px 0px 0px 0px;
+            width: 21px;
+            height: 80px;
+        }
+        .borderDiv .RightBotton
+        {
+            background: url(images2/right.gif) no-repeat;
+            float: left;
+            margin: 10px 0px 0px 0px;
+            width: 21px;
+            height: 80px;
+        }
+        .borderDiv .LeftBotton
+        {
+            background-position: 0px 10px;
+            margin-left: 5px;
+        }
+        .borderDiv .RightBotton
+        {
+            background-position: 0px 10px;
+            margin-left: -1px;
+        }
+        .borderDiv .pl IMG
+        {
+            display: block;
+            margin: 6px auto 1px;
+            cursor: pointer;
+            border-top-style: none;
+            border-right-style: none;
+            border-left-style: none;
+            border-bottom-style: none;
+        }
+        .borderDiv .pl
+        {
+            border-right: #f3f3f3 1px solid;
+            border-top: #f3f3f3 1px solid;
+            float: left;
+            border-left: #f3f3f3 1px solid;
+            width: 187px;
+            line-height: 24px;
+            border-bottom: #f3f3f3 1px solid;
+            text-align: center;
+            text-decoration: underline;
+        }
+        .borderDiv A.pl:hover
+        {
+            border-right: #ff9900 1px solid;
+            border-top: #ff9900 1px solid;
+            background: #fff;
+            border-left: #ff9900 1px solid;
+            color: #ff9900;
+            border-bottom: #ff9900 1px solid;
+        }
+</style>
+</head>
+<body>
+    <!-- picrotate_left start  -->
+    <div class="borderDiv">
+        <a onmouseup="ISL_StopUp_1()" class="LeftBotton" onmousedown="ISL_GoUp_1()" onmouseout="ISL_StopUp_1()"
+            href="javascript:void(0);" target="_self"></a>
+        <div class="pcont" id="ISL_Cont_1">
+            <div class="ScrCont">
+                <div id="List1_1">
+                    <!-- piclist begin -->
+                    <a class="pl" href="http://www.lanrentuku.com/" target="_blank">
+                        <img height="94" alt="20-50元夏装抢疯" src="images2/pic01.jpg" width="175">美女小凡最新夏装</a>
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic02.jpg" width="175">3万6超值装修88平</a>     
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic03.jpg" width="175">牛干巴敲开财富门</a>   
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic04.jpg" width="175">4K至7K高性能本本</a>
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic05.jpg" width="175">7万装修102平婚房</a>
+                        
+                           
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic01.jpg" width="175">热门项目 BT烤翅</a>  
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic01.jpg" width="175">要显瘦就这么穿</a>   
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic01.jpg" width="175">韩国人气小耳环</a>
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic01.jpg" width="175">今天冬至</a>    
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic01.jpg" width="175">给好友贺卡</a>
+                        
+                        
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic01.jpg" width="175">明天天冷</a>
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic01.jpg" width="175">快圣诞了</a>   
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic01.jpg" width="175">圣诞逛啊</a>  
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic01.jpg" width="175">大唐不夜城</a>
+                        <a class="pl" href="http://www.lanrentuku.com/" target="_blank"><img height="94" alt="韩国人气小耳环" src="images2/pic01.jpg" width="175">钟楼人多的很</a>   
+                        
+                        
+                        
+                    <!-- piclist end -->
+                </div>
+                <div id="List2_1">
+                </div>
+            </div>
+        </div>
+        <a onmouseup="ISL_StopDown_1()" class="RightBotton" onmousedown="ISL_GoDown_1()"
+            onmouseout="ISL_StopDown_1()" href="javascript:void(0);" target="_self"></a>
+    </div>
+
+    <script type="text/javascript">
+<!--
+picrun_ini()
+//-->
+    </script>
+
+    <!-- picrotate_left end -->
+</body>
+</html>

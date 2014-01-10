@@ -1,0 +1,59 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="css/css.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>3级横向导航菜单_懒人图库</title>
+
+    <script type="text/javascript">
+//SuckerTree Vertical Menu (Aug 4th, 06)
+//By Dynamic Drive: http://www.dynamicdrive.com/style/
+
+var menuids=["suckertree1"] //Enter id(s) of SuckerTree UL menus, separated by commas
+
+function buildsubmenus(){
+for (var i=0; i<menuids.length; i++){
+  var ultags=document.getElementById(menuids[i]).getElementsByTagName("ul")
+    for (var t=0; t<ultags.length; t++){
+    ultags[t].parentNode.getElementsByTagName("a")[0].className="subfolderstyle"
+    ultags[t].parentNode.onmouseover=function(){
+    this.getElementsByTagName("ul")[0].style.display="block"
+    }
+    ultags[t].parentNode.onmouseout=function(){
+    this.getElementsByTagName("ul")[0].style.display="none"
+    }
+    }
+  }
+}
+
+if (window.addEventListener)
+window.addEventListener("load", buildsubmenus, false)
+else if (window.attachEvent)
+window.attachEvent("onload", buildsubmenus)
+    </script>
+
+</head>
+<body>
+    <div class="suckerdiv">
+        <ul id="suckertree1">
+            <li><a href="/html/products/bjyp/list_1.html">保健药品</a>
+                <ul>
+                    <li><a href="/html/products/bjyp/kfyp/list_1.html">口服药品</a> </li>
+                    <li><a href="/html/products/bjyp/wfyp/list_1.html">外敷药品</a> </li>
+                </ul>
+            </li>
+            <li><a href="/html/products/zy/list_1.html">中药</a>
+                <ul>
+                    <li><a href="/html/products/zy/jf/list_1.html">煎服2</a> </li>
+                    <li><a href="/html/products/zy/kf/list_1.html">口服</a> </li>
+                    <ul>
+                        <li><a href="/html/products/zy/kf/kfxe/list_1.html">口服小儿</a> </li>
+                        <ul>
+                            <li><a href="/html/products/zy/kf/kfxe/jztyp/list_1.html">九芝堂药品</a> </li>
+                        </ul>
+                    </ul>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

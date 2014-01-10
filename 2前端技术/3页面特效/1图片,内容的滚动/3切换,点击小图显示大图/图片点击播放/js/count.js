@@ -1,0 +1,1 @@
+document.write("<img src='http://pdlib.pconline.com.cn/product/visitCountToFile.jsp?id="+ productId+ "&brandId=" + brandId +"' border=0 width=0 height=0 alt='' >");

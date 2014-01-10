@@ -1,0 +1,44 @@
+/* ================================================================ 
+This copyright notice must be untouched at all times.
+
+The original version of this stylesheet and the associated (x)html
+is available at http://www.stunicholls.com/menu/pro_dropline_1.html
+Copyright (c) 2005-2007 Stu Nicholls. All rights reserved.
+This stylesheet and the associated (x)html may be modified in any 
+way to fit your requirements.
+=================================================================== */
+
+#nav {
+height:36px; position:relative; font-family:arial, verdana, sans-serif; font-size:11px;z-index:500;
+}
+#nav .select {
+margin:0; padding:0; list-style:none; white-space:nowrap;
+}
+#nav li {
+float:left; background:url(blank_over_p.gif);
+}
+#nav .select a {
+display:block; height:36px; float:left; background: url(blank_p.gif); padding:0 0 0 15px; text-decoration:none; line-height:25px; white-space:nowrap; color:#ddd;
+}
+#nav .select a b {
+display:block; padding:0 30px 10px 15px; background:url(blank_p.gif) right top;
+}
+#nav .select li:hover a {
+background: url(blank_over_p.gif); padding:0 0 0 15px; line-height:27px; cursor:pointer; color:#fff;
+}
+#nav .select li:hover a b {
+display:block; padding:0 30px 9px 15px; background:url(blank_over_p.gif) right top; cursor:pointer;
+}
+#nav .sub {
+display:none; margin:0; padding:0 0 0 60px;list-style:none;
+}
+#nav .sub li {background:transparent;}
+#nav .select li:hover .sub {
+height:18px; display:block; position:absolute; float:left; width:750px; top:28px; left:0; text-align:center;
+}
+#nav .select li:hover .sub li a {
+display:block;height:18px; line-height:16px; float:left; background:transparent url(transparent.gif); padding:0 16px; margin:0; white-space:nowrap; border:1px solid #000; border-color:#888 #777 #666 #ddd; color:#888;font-size:10px;
+}
+#nav .select li:hover .sub li a:hover {
+color:#000; background:#e8e8e8; border-color: #fff #333 #000 #fff; line-height:15px;
+}

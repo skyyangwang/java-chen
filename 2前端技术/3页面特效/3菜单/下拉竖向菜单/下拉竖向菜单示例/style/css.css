@@ -1,0 +1,54 @@
+﻿@charset "utf-8";
+body,html,div,form,span,h1,h2,h3,h4,h5,h6,img,ul,ol,li,a,table{ margin:0;padding:0;}
+body{ }
+#contain{
+	margin:0 auto;
+	width:1004px;
+	height:1000px;
+	text-align: center;
+	vertical-align: top;
+}
+.head{
+	height:98px;
+	float: left;
+	}
+.logo{float:left; margin:38px 0px 0px 62px;_margin:38px 0px 0px 32px; background:url(../images/logo.jpg) no-repeat; width:246px; height:38px;}
+.headcenter{float:left; background:url(../images/pho1.jpg) no-repeat;
+			margin-top:43px;
+			margin-left:265px;
+			width:126px;
+			height:24px;
+}
+.headright{
+			float:left;
+			background:url(../images/pho2.jpg) no-repeat;
+			width:239px; height:79px;
+			margin-left:2px;
+			margin-top:13px;
+}
+/*菜单部分*/
+
+.flash{
+	width:880px;
+	height:260px;
+	text-align:left;
+	margin-left:auto;
+	margin-right:auto;
+	vertical-align: top;
+	float:left;
+	}
+.fd_font{
+	float:left;
+	margin-top:100px;
+	margin-left:120px;
+	position: absolute;
+}
+
+.banner{
+    width:880px;
+	height:248px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top:5px;
+	}
+.bannerleft{ margin-left:80px; margin-top:127px;}

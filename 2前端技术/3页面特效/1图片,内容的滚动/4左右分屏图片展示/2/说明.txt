@@ -1,0 +1,21 @@
+
+div=list1中5张小图,  175px;
+div=list2用于替换,
+
+图片的悬浮宽度,<a class="pl"
+	.pl    width: 187px;  
+
+外套div=ScrCont,  设置整个的大宽度  width: 32766px;
+
+外套div= pcont,  设置小的宽度  5张图的,  单张(187,翻页的189)*5大一些, width: 950px;   overflow: hidden;    
+
+两个内按钮,  插入背景图片;  宽度 21px *2 = 42px:
+
+外套div = borderDiv  ,最外边框div,   设置边框border: #e3e3e3 1px solid;  背景色,
+	超出隐藏,  宽度,  background: #f3f3f3;  overflow: hidden;   
+  	    加按钮后再宽一点;  width: 998px;
+
+////////////////////////////
+
+js的:
+var PageWidth_1 = 189 * 5; //翻页宽度   

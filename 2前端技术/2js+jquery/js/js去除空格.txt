@@ -1,0 +1,11 @@
+去除右空格：
+str=str.replace(/(\s*$)/g, "");
+
+去除左空格：
+str=str.replace( /^\s*/, '');
+
+去除两头空格:   
+str   =   str.replace(/^\s+|\s+$/g,"");
+
+去除所有空格:   
+str   =   str.replace(/\s+/g,""); 

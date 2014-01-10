@@ -1,0 +1,58 @@
+﻿
+.sildPicArticle {
+	BORDER-RIGHT: #d8d8d8 1px solid; BORDER-TOP: #d8d8d8 1px solid; BORDER-LEFT: #d8d8d8 1px solid;  BORDER-BOTTOM: #d8d8d8 1px solid; MARGIN-BOTTOM: 8px; WIDTH: 800px;
+}
+
+.sildPicArticle h2 {
+	FONT-SIZE: 14px; TEXT-INDENT: 17px;FLOAT: left;FONT-WEIGHT: normal;
+}
+.sildPicArticle ul {
+	LIST-STYLE-TYPE: none; padding:0px; margin:0px;
+}
+.sildPicArticle li {
+	FLOAT: left; WIDTH: 200px; LINE-HEIGHT: 21px; TEXT-ALIGN: left;
+}
+
+.sildPicArticle .sildPicBar {
+	DISPLAY: inline; FLOAT: right; OVERFLOW: hidden; WIDTH: 86px; MARGIN-RIGHT: 18px; PADDING-TOP: 6px; ZOOM: 1; HEIGHT: 22px
+}
+.sildPicArticle .pre {
+	DISPLAY: inline; BACKGROUND: url(../images/xixi.png) no-repeat -151px -60px; FLOAT: left; WIDTH: 20px; CURSOR: pointer; MARGIN-RIGHT: 8px; HEIGHT: 15px
+}
+.sildPicArticle .next {
+	BACKGROUND: url(../images/xixi.png) no-repeat -151px -131px; FLOAT: right; WIDTH: 20px; CURSOR: pointer; HEIGHT: 15px
+}
+.sildPicArticle .sildPicBar LI {
+	MARGIN-TOP: 5px; DISPLAY: inline; BACKGROUND: url(../images/xixi.png) no-repeat -165px -112px; FLOAT: left; MARGIN-LEFT: 3px; WIDTH: 6px; CURSOR: pointer; HEIGHT: 6px
+}
+.sildPicArticle .sildPicBar LI.select {
+	BACKGROUND: url(../images/xixi.png) no-repeat -165px -86px
+}
+
+
+.sildPicArticle .cnt-wrap {
+	OVERFLOW: hidden; WIDTH: 800px; ZOOM: 1; HEIGHT: 162px
+}
+.sildPicArticle .cnt {
+	WIDTH: 2400px; margin-left:25px;
+}
+.sildPicArticle .cnt IMG {
+	BORDER-RIGHT: #ccc 1px solid; BORDER-TOP: #ccc 1px solid; BORDER-LEFT: #ccc 1px solid; BORDER-BOTTOM: #ccc 1px solid
+}
+.sildPicArticle .cnt .titleHref {
+	DISPLAY: block; MARGIN-LEFT: 0px; WIDTH: 140px; TEXT-ALIGN: center; font-size:12px;
+}
+
+
+a:link {
+	COLOR: #0b3b8c; TEXT-DECORATION: none
+}
+a:visited {
+	COLOR: #0b3b8c; TEXT-DECORATION: none
+}
+a:hover {
+	COLOR: #0b3b8c; TEXT-DECORATION: underline
+}
+a:active {
+	COLOR: #0b3b8c; TEXT-DECORATION: underline
+}

@@ -1,0 +1,84 @@
+<%@ page contentType="text/html; charset=gb2312" language="java" import="java.sql.*" errorPage="" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>无标题文档</title>
+</head>
+
+<body topmargin="2">
+<script language="JavaScript" type="text/JavaScript">
+//首先定义两个数组，一个是菜单文字，一个是链接
+var MenuText = new Array(3);
+var MenuEven = new Array(3);
+MenuText[1] = ["菜单11","菜单12","菜单13"];
+MenuText[2] = ["菜单21","菜单21"];
+MenuText[3] = ["菜单31","菜单321","菜单33"];
+
+MenuEven[1] = ["top.jsp","bottom.jsp","top.jsp"];
+MenuEven[2] = ["url21","url22"];
+MenuEven[3] = ["url31","url32","url33"];
+
+//初始化一个oPopup对象
+
+var oPopup = window.createPopup();
+
+//这两个是获得表格绝对位置的方法，很有用的说
+function getLeftIE(x,m) {
+var dx=0;
+if (x.tagName=="TD"){
+dx=x.offsetLeft;
+}
+else if (x.tagName=="TABLE") {
+dx=x.offsetLeft;
+if (m) { dx+=(x.cellPadding!=""?parseInt(x.cellPadding):2); m=false; }
+}
+return dx+(x.parentElement.tagName=="BODY"?0:getLeftIE(x.parentElement,m));
+}
+
+
+function getTopIE(x,m) {
+var dy=0;
+if (x.tagName=="TR"){
+dy=x.offsetTop;
+}
+else if (x.tagName=="TABLE") {
+dy=x.offsetTop;
+if (m) { dy+=(x.cellPadding!=""?parseInt(x.cellPadding):2); m=false; }
+}
+return dy+(x.parentElement.tagName=="BODY"?0:getTopIE(x.parentElement,m));
+}
+
+
+//显示菜单
+function ButtonClick(node,t)
+{ 
+//首先得到鼠标所在的表格的位置
+var left = getLeftIE(node,true); 
+var top = getTopIE(node,true)+30;
+//定义打开的oPopup的宽度，高度
+var width = 90;
+var height = MenuText[t].length*20; 
+//清空oPopup的内容，否则每次调用都只会在后面接着写
+oPopup.document.body.innerHTML = "";
+var oPopBody = oPopup.document.body;
+oPopup.show(left,top, width, height, document.body); 
+oPopup.document.open;
+//让oPopup在鼠标离开时自动隐藏。
+oPopup.document.write("<body leftmargin=0 topmargin=0 scroll=no style='border : 0 px;' onmouseover=clearTimeout(parent.popt); onmouseout=parent.popt=setTimeout('parent.oPopup.hide()',10);>");
+
+//用document.write()写菜单内容
+oPopup.document.write("<table width=100% height=100% style='border-collapse : collapse;'>");
+for(var i=0;i<MenuText[t].length;i++)
+{
+oPopup.document.write("<tr><td background='image/topbg.gif' bgcolor=#cccccc style='border-top : #cccccc 1px solid;border-bottom : #666666 1px solid;border-left : #cccccc 1px solid;border-right : #666666 1px solid;mouse : hand; font-size : 12px; color:#000000;text-align : left;vertical-align : center;CURSOR: hand' onmouseover=this.bgColor='#C2D2E5'; onmouseout=this.bgColor='#cccccc'; height='20' onclick='parent.parent.bottom.location.href=\""+MenuEven[t][i]+"\"';>"+MenuText[t][i]+"</td></tr>");
+}
+oPopup.document.write("</table></td></tr></table>");
+oPopup.document.write("</body>")
+}
+
+
+</SCRIPT>
+<a href="javascript:void(0);" onmouseover="ButtonClick(this,1)" >菜单1</a>
+</body>
+</html>

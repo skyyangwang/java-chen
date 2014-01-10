@@ -1,0 +1,13 @@
+<marquee onMouseOver=this.stop() onMouseOut=this.start() scrollamount="2" scrolldelay="100"    direction="up"  height="137" width="155">    
+                    <asp:Repeater ID="Repeater2" runat="server">
+	                 <ItemTemplate>
+                        &nbsp; <img border="0" src="images/list2.gif" alt=""/> 　&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:NewsWindow(<%# Eval("id")%>)"><%# Eval("title")%></a><br/>
+                    </ItemTemplate>
+                 </asp:Repeater>
+                </marquee>
+---向上滚动；
+
+
+direction 表示滚动的方向，值可以是left，right，up，down，默认为left 
+scrollamount 表示运动速度，值是正整数，默认为6 
+scrolldelay 表示停顿时间，值是正整数，默认为0，单位是毫秒 

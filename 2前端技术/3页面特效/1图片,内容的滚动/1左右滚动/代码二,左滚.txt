@@ -1,0 +1,25 @@
+<div id=demo style=overflow:hidden;height:139;width:232;background:#f4f4f4;color:#ffffff><table align=left cellpadding=0 cellspace=0 border=0><tr><td id=demo1 valign=top><img src="http://www.lanrentuku.com/down/js/images/12460764740.jpg"><img src="http://www.lanrentuku.com/down/js/images/12460764741.jpg"><img src="http://www.lanrentuku.com/down/js/images/12460764742.jpg"><img src="http://www.lanrentuku.com/down/js/images/12460764743.jpg"><img src="http://www.lanrentuku.com/down/js/images/12460764744.jpg"></td><td id=demo2 valign=top></td></tr></table></div>
+  <script>
+  var speed=30
+  demo2.innerHTML=demo1.innerHTML
+  function Marquee(){
+  if(demo2.offsetWidth-demo.scrollLeft<=0)
+  demo.scrollLeft-=demo1.offsetWidth
+  else{
+  demo.scrollLeft++
+  }
+  }
+  var MyMar=setInterval(Marquee,speed)
+  demo.onmouseover=function() {clearInterval(MyMar)}
+  demo.onmouseout=function() {MyMar=setInterval(Marquee,speed)}
+  </script>
+<p><a href="http://www.lanrentuku.com" target="_blank">懒人图库</a></p>
+
+
+
+---------------------说明:ie7,8滚动,ie6无效;
+
+解决:宽高加限制,加好px,就好了;    ---上面的,  height:139px;width:232px;
+---ie6,7,8就没问题了,
+
+---火狐不行,后面再说;

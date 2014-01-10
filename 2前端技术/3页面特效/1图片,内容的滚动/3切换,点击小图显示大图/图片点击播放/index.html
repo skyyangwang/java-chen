@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<title>效果切换</title>
+<base target="_blank" />
+</head>
+<link href="style/ykb.css" rel="stylesheet" type="text/css" />
+<script  src="js/jquery-1.2.6.js" type="text/javascript"></script>
+<script src="js/ivy.js"></script>
+<script src="js/jquery.cookie.js"></script>
+<script src="js/autoPalyer.js"></script>
+<script src="js/pricev2_1.js"></script>
+<script >
+	var picsJson={"pics":[
+					  {"thumbPicUrl":"photos/zydfc00001.gif","articleTag":"0_外观图片","tag":"00_外观图片","type":"0","pubLinkId":"0","articleUrl":"","productId":"349691","id":"2531086","fileSize":"0","articleTitle":"","isCms":"0","alt":"","name":"mp4_sanxing_cp3_l.jpg","bigPicUrl":"","uploadBy":"zhangwenhui","middlePicUrl":"photos/zydfc00001.gif"},
+{"thumbPicUrl":"photos/zydfc00002.gif","articleTag":"0_外观图片","tag":"00_外观图片","type":"0","pubLinkId":"0","articleUrl":"","productId":"349691","id":"2531086","fileSize":"0","articleTitle":"","isCms":"0","alt":"","name":"mp4_sanxing_cp3_l.jpg","bigPicUrl":"","uploadBy":"zhangwenhui","middlePicUrl":"photos/zydfc00002.gif"},
+{"thumbPicUrl":"photos/zydfc00003.gif","articleTag":"0_外观图片","tag":"00_外观图片","type":"0","pubLinkId":"0","articleUrl":"","productId":"349691","id":"2531086","fileSize":"0","articleTitle":"","isCms":"0","alt":"","name":"mp4_sanxing_cp3_l.jpg","bigPicUrl":"","uploadBy":"zhangwenhui","middlePicUrl":"photos/zydfc00003.gif"},
+{"thumbPicUrl":"photos/zydfc00004.gif","articleTag":"0_外观图片","tag":"00_外观图片","type":"0","pubLinkId":"0","articleUrl":"","productId":"349691","id":"2531086","fileSize":"0","articleTitle":"","isCms":"0","alt":"","name":"mp4_sanxing_cp3_l.jpg","bigPicUrl":"","uploadBy":"zhangwenhui","middlePicUrl":"photos/zydfc00004.gif"},
+{"thumbPicUrl":"photos/zydfc00006.gif","articleTag":"0_外观图片","tag":"00_外观图片","type":"0","pubLinkId":"0","articleUrl":"","productId":"349691","id":"2531086","fileSize":"0","articleTitle":"","isCms":"0","alt":"","name":"mp4_sanxing_cp3_l.jpg","bigPicUrl":"","uploadBy":"zhangwenhui","middlePicUrl":"photos/zydfc00006.gif"}
+					 
+
+]};
+
+</script>
+<body >
+  <div class="imgLib">
+    <div class="imgShow">
+		  <div id="_playpic" class="playNav">
+			  <i class="title" id="alt"></i>
+			  <i class="playButtom">
+				<a href="javascript://" target="_self" class="play" title="播放" id="butPlay"></a>
+				<span id="playStatus">点击自动播放</span>
+				<a href="javascript://" target="_self" style="display:none" class="stop" title="停止" id="butStop"></a>
+				<a href="javascript://" target="_self" style="display:none" class="pause" title="暂停" id="butPause"></a>
+				<span id="speedGroup" class="spead" style="display:none">
+					<a href="javascript://" target="_self" speed="3">快</a>┊<a href="javascript://" target="_self" speed="5">中</a>┊<a href="javascript://" target="_self" speed="8">慢</a>
+				</span>
+			</i>
+			  <i class="jump">
+				<a href="javascript://" class="pre" id="topPrev" target="_self" title="上一张"></a>
+				<a href="javascript://" class="next" id="topNext" target="_self" title="下一张"></a>
+				<span id="showPage">0</span>/<span id="showTotal">0</span>
+			  </i>
+		 </div>
+		 
+		  <div class="singlepic" id="_singlepic">
+			<div class="prePic">
+				<a href="javascript://" id="butPrev" target="_self" title="上一张1"></a>
+			</div>
+			<div class="bigPic">
+				<img id="screen" src="photos/zydfc00001.gif" />
+			</div>
+			<div class="nextPic">
+				<a href="javascript://" id="butNext" target="_self" title="下一张1"></a>
+			</div>
+		</div>
+		<!--<div class="pageJump">键盘<i>← →</i>或<i>PageUp PageDown</i>键可查看
+			
+					<a id="butPrevLink" target="_self" href="#">上一页</a>
+				
+			
+					<a id="butNextLink" target="_self" href="#">下一页</a>
+				
+		</div>-->
+		<i class="to_left">
+			<a id="butPrevGroup" href="javascript://" target="_self" title="上五张图片"></a>
+		</i>
+		<ul id="nav" class="silderpic">         
+		</ul>		
+		<i class="to_right">
+			<a id="butNextGroup" href="javascript://" target="_self" title="下五张图片"></a>
+		</i>  
+	  </div>
+      
+  </div>  
+<script>var productId=349691; var brandId=35929; </script>
+<span id="span_count" class="spanclass"></span>
+<script type="text/javascript">
+var autoPalyer = new AutoPlayer({
+	"baseUrl":"http://product.pconline.com.cn/pdlib/",
+	"tag":"",
+	"screenId":"screen",
+	"altId":"alt",
+	"defaultAlt":"西安田成智能科技有限公司",
+	"navId":"nav",
+	"butPlayId":"butPlay",
+	"butPauseId":"butPause",
+	"butStopId":"butStop",
+	"playStatusId":"playStatus",
+	"butPrevId":"butPrev,topPrev",
+	"butNextId":"butNext,topNext",
+	"butPrevGroupId":"butPrevGroup",
+	"butNextGroupId":"butNextGroup",
+	"butPrevLinkId":"butPrevLink",
+	"butNextLinkId":"butNextLink",
+	"butExamineId":"butExamine",
+	"pvCounterId":"span_count",
+	"butSpeedGroupId":"speedGroup",
+	"showTotalId":"showTotal",
+	"showPageId":"showPage",
+	"showSourceId":"showSource",
+	"showSourceCompositeId":"showSourceComposite",
+	"data":picsJson["pics"],
+	"curId":2531086,
+	"picFilter":"",
+	"curUrl":""
+});
+
+</script>
+</body>
+</html>
+
+

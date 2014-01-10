@@ -1,0 +1,14 @@
+
+路径:
+
+js位置更改后,
+javascript://     后面加上修改的路径就好了;  到js文件夹的前面一级; 它默认的没有写js文件夹和之后的js文件;
+
+<div class="prePic">
+	<a href="javascript://" id="butPrev" target="_self" title="上一张1"></a>
+</div>
+
+---javascript://bobcn_UI/zydfc/
+      javascript://../../../bobcn_UI
+
+zydfc下是原来的js,css等文件夹;
