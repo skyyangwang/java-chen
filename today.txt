@@ -1,0 +1,10 @@
+
+使用maven构建项目；---spring4.0;hibernate4+;struts2最新；
+
+加入service层；
+
+新建action层，作为struts2处理类的包；
+
+---
+
+ssh项目+已有技术；
