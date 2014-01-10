@@ -1,0 +1,92 @@
+使用Spring结合CXF创建好服务器端的WebService后，如果我们需要对访问者的IP进行限制，那么我们可以创建一个继承自AbstractPhaseInterceptor类的拦截器。
+
+比如：AccessInterceptor.java类
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
+
+import bgi.health.commons.SystemProperties;
+
+public class AccessInterceptor extends AbstractPhaseInterceptor<Message> {
+//获取Log日志类
+private final Log logger = LogFactory.getLog(AccessInterceptor.class);
+//获取读取配置文件的实体
+private SystemProperties property = SystemProperties.getInstance();
+
+//创建默认的构造方法
+public AccessInterceptor(){
+super(Phase.RECEIVE);
+}
+
+@Override
+public void handleMessage(Message msg) throws Fault {
+
+//获取request。
+HttpServletRequest request = (HttpServletRequest) msg.get(AbstractHTTPDestination.HTTP_REQUEST);
+
+//获取当前访问者的IP地址
+String ipAddress = this.getIp(request);
+
+//得到允许访问的IP地址列表 ,从配置文件中读取
+String accessIpStr = property.getProperty(“hims.client.ip”);
+if(accessIpStr!=null && !”".equals(accessIpStr.trim())){
+String[] ips = accessIpStr.split(“,”);
+List<String> iplist = Arrays.asList(ips);
+if(iplist.contains(ipAddress)){
+logger.info(“IP address ” + ipAddress + ” is allowed”);
+}else{
+logger.warn(“IP address ” + ipAddress + ” is not allowed”);
+
+//如果IP地址不被允许，则抛出异常信息给CXF处理。
+throw new Fault(new IllegalAccessException(“IP address ” + ipAddress + ” is not allowed”));
+}
+}
+}
+//得到访问者的IP地址。
+private String getIp(HttpServletRequest request){
+String ip = request.getHeader(“x-forwarded-for”);
+if(ip==null || ip.length()==0 || “unknown”.equalsIgnoreCase(ip)){
+ip = request.getHeader(“Proxy-Client-IP”);
+}
+if(ip==null || ip.length()==0 || “unknown”.equalsIgnoreCase(ip)){
+ip = request.getHeader(“WL-Proxy-Client-IP”);
+}
+if(ip==null || ip.length()==0 || “unknown”.equalsIgnoreCase(ip)){
+ip = request.getRemoteAddr();
+}
+return ip;
+}
+}
+
+然后，在CXF配置文件中配置该拦截器：
+
+<bean id=”accessInterceptor” class=”******.AccessInterceptor” />
+
+<cxf:bus>
+<cxf:inInterceptors>
+<ref bean=”accessInterceptor” />
+</cxf:inInterceptors>
+</cxf:bus>
+
+最后：如果访问者的IP不在配置文件的范围内，那么访问WebService接口时，会出现如下情况：
+
+<soap:Envelope>
+<soap:Body>
+<soap:Fault>
+<faultcode>soap:Server</faultcode>
+<faultstring>IP address 127.0.0.1 is not allowed</faultstring>
+</soap:Fault>
+</soap:Body>
+</soap:Envelope>
+
+其中:127.0.0.1为访问者IP。

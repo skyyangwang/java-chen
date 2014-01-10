@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="deploy" basedir="." name="cas1">
+	
+ <!--web应用的上下文-->
+ <property name="antProjectName" value="cas1"/>
+ <!--tomcat的webapps的路径-->
+ <property name="dest-dir" value="D:\apache-tomcat-7.0.8\webapps"/>
+ 
+    <property name="src.dir"     value="src"/>
+    <property name="build.dir"   value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="jar.dir"     value="${build.dir}/jar"/>
+	
+	<property name="lib.dir"     value="${basedir}/WebRoot/WEB-INF/lib"/>
+	<path id="classpath">
+	        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+	    </path>
+	
+	<target name="compile">
+	        <mkdir dir="${classes.dir}"/>
+	        <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+	    </target>
+	
+	<target name="jar" depends="compile">
+	        <mkdir dir="${jar.dir}"/>
+	        <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+	            
+	        </jar>
+	    </target>
+ 
+ <target name="clean">
+  <delete dir="${dest-dir}/${antProjectName}"/>
+  <delete file="${dest-dir}/${antProjectName}.war"/>
+ 	<delete dir="${build.dir}"/>
+ </target>
+ 
+ <!--copy WebRoot下的文件到指定目录下 | exclude例外-->
+ <target name="copyfile">
+  <copy todir="${dest-dir}/${antProjectName}">
+   <fileset dir="${basedir}/WebRoot">
+    <include name="**" />
+    <exclude name="**/portlet-api_2.0_spec-1.0.jar"/>
+   </fileset>
+  </copy>
+ </target>
+ 
+ <!--copy WebRoot下的文件到指定目录下,并生成.war文件-->
+ <target name="war">
+  <war destfile="${dest-dir}/${antProjectName}.war" webxml="${basedir}/WebRoot/WEB-INF/web.xml">
+   <fileset dir="${basedir}/WebRoot">
+    <include name="**" />
+    <exclude name="**/portlet-api_2.0_spec-1.0.jar"/>
+   </fileset>
+  </war>
+ </target>
+	
+	<target name="deploy" depends="clean,copyfile,war,jar"/>
+
+</project>
