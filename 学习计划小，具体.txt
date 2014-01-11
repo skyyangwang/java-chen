@@ -23,9 +23,10 @@ Ibatis,hibernate,jdbc templete 存储过程---spring data；
 ~
 上面确保；
 
-net有用的整理入java，然后全删除掉；
+
 liferay整理；
 教育系统整理；
+net有用的整理入java，然后全删除掉；
 
 
 2月：
