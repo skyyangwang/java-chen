@@ -13,13 +13,13 @@ public class UploadF {
 	
 	public static void main(String[] args) {
 		
-		String filename="e:/chen/sshWeb.rar";
+		String filename="e:/nana鍗楀哺.txt";
 		File uploadFile = new File(filename);
 		uploadFile(uploadFile);  
 	}
 
 	/** 
-     * 上传文件 
+     * 涓婁紶鏂囦欢 
      * @param uploadFile 
      */  
     private static void uploadFile(final File uploadFile) {
@@ -51,7 +51,7 @@ public class UploadF {
             
             Socket socket = new Socket("localhost",9933);  
             OutputStream outStream = socket.getOutputStream();  
-            outStream.write(head.getBytes());  
+            outStream.write(head.getBytes("utf-8"));  
               
             PushbackInputStream inStream = new PushbackInputStream(socket.getInputStream());      
             String response = StreamTool.readLine(inStream);  

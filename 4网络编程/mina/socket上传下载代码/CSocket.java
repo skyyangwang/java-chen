@@ -9,13 +9,13 @@ import net.sf.json.JSONObject;
 public class CSocket {
 	public static void main(String[] args) {
         try {
-            /** ´´½¨Socket*/
-            // ´´½¨Ò»¸öÁ÷Ì×½Ó×Ö²¢½«ÆäÁ¬½Óµ½Ö¸¶¨ IP µØÖ·µÄÖ¸¶¨¶Ë¿ÚºÅ(±¾´¦ÊÇ±¾»ú)
+            /** åˆ›å»ºSocket*/
+            // åˆ›å»ºä¸€ä¸ªæµå¥—æ¥å­—å¹¶å°†å…¶è¿æ¥åˆ°æŒ‡å®š IP åœ°å€çš„æŒ‡å®šç«¯å£å·(æœ¬å¤„æ˜¯æœ¬æœº)
             Socket socket = new Socket("localhost", 9933);
-            // 60s³¬Ê±
+            // 60sè¶…æ—¶
             socket.setSoTimeout(600000);
  
-            //ĞÅÏ¢¸ñÊ½1
+            //ä¿¡æ¯æ ¼å¼1
             /*JSONObject jsonObject = new JSONObject();
 	        jsonObject.put("boxid", "354117215727936");
 	        jsonObject.put("message", "111");
@@ -26,7 +26,7 @@ public class CSocket {
 	        JSONObject jsonObject2 = new JSONObject();
 	        jsonObject2.put("head", jsonObject);*/
             
-            //ĞÅÏ¢¸ñÊ½2
+            //ä¿¡æ¯æ ¼å¼2
             JSONObject jsonObject = new JSONObject();
     		jsonObject.put("filename", "110321152142222.jpg");
     		

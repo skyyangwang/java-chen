@@ -1,6 +1,9 @@
 package socketUse;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,8 +13,6 @@ import java.io.OutputStream;
 import java.io.PushbackInputStream;
 import java.io.RandomAccessFile;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -26,44 +27,47 @@ public class SSocketHandler implements Runnable {
 	private String uploadPath="e:/uploadFile/";
 	private String downloadPath="e:/downloadFile/";
 
-	private Map<Long, FileLog> datas = new HashMap<Long, FileLog>();// ´æ·Å¶ÏµãÊı¾İ£¬×îºÃ¸ÄÎªÊı¾İ¿â´æ·Å
+	private Map<Long, FileLog> datas = new HashMap<Long, FileLog>();// å­˜æ”¾æ–­ç‚¹æ•°æ®ï¼Œæœ€å¥½æ”¹ä¸ºæ•°æ®åº“å­˜æ”¾
 
 	private static boolean start=true;
 	
-	//¹¹Ôì·½·¨
+	//æ„é€ æ–¹æ³•
 	public SSocketHandler(Socket s) throws IOException {
 		client = s;
         System.out.println("Client(" + client.getRemoteSocketAddress() + ") come in...");
         
-        //´Ë·½Ê½È¡Öµºó£¬ÆäÖĞµÄÍ·ÎÄ¼şÊÜÓ°Ïì£»---ºóÃæÔÙÈ¡²»µ½Í·£¬ËùÒÔ£¬´«µİobject£»
-        PushbackInputStream in = new PushbackInputStream(
+        //æ­¤æ–¹å¼å–å€¼åï¼Œå…¶ä¸­çš„å¤´æ–‡ä»¶å—å½±å“ï¼›---åé¢å†å–ä¸åˆ°å¤´ï¼Œæ‰€ä»¥ï¼Œä¼ é€’objectï¼›
+        //è§£æ³•1   | ä¸­æ–‡ä¹±ç ï¼›
+        /*PushbackInputStream in = new PushbackInputStream(
 				client.getInputStream());
-          
         String json = StreamTool.readLine(in);
-        /*byte[] b = new byte[1024];
-		in.read(b, 0, b.length);*/
-		JSONObject object = JSONObject.fromObject(json);
+        JSONObject object = JSONObject.fromObject(json);*/
+        //è§£æ³•2
+        InputStream inputStream	= client.getInputStream();
+        byte[] b = new byte[1024];
+        inputStream.read(b, 0, b.length);
+        JSONObject object = JSONObject.fromObject(new String(b));
 		
 		method = Integer.parseInt(object.getJSONObject("head").getString("method"));
 		
 		switch (method) {
-		//ºĞ×ÓÁ¬½Ó±£³Ö
+		//ç›’å­è¿æ¥ä¿æŒ
 		case 10042:
 			ConnectionsRemain(object);
 			break;
-		//ÉÏ´«£»-ÊÖ»ú
+		//ä¸Šä¼ ï¼›æ‰‹æœº-ä¸Šä¼ æ–‡ä»¶
 		case 10041:
 			upload(object);
 			break;
-		//ÉÏ´«£»-ºĞ×Ó·µ»Ø½á¹û
+		//ä¸Šä¼ ï¼›ç›’å­è¿”å›ç»“æœ-jsonä¸²
 		case 100410:
 			uploadBack(object);
 			break;
-		//ÏÂÔØ£»
+		//ä¸‹è½½ï¼›æ‰‹æœºè¯·æ±‚--jsonä¸²
 			case 10043:
 			download(object);
 			break;
-			//ÏÂÔØ£»-ºĞ×Ó·µ»Ø
+			//ä¸‹è½½ï¼›-ç›’å­è¿”å›æ–‡ä»¶
 			case 100430:
 			downloadBack(object);
 			break;
@@ -72,41 +76,36 @@ public class SSocketHandler implements Runnable {
         //new Thread(this).start();
 	}
 
-	//ÏÂÔØ---ÊÖ»úÇëÇó´¦Àí
+	//ä¸‹è½½---æ‰‹æœºè¯·æ±‚å¤„ç†
 	private void download(JSONObject object) throws IOException {
-		// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
+		// TODO è‡ªåŠ¨ç”Ÿæˆçš„æ–¹æ³•å­˜æ ¹
 		String mobile1 = object.getJSONObject("head").getString("mobileid");
-		String boxid1 = object.getJSONObject("user").getString("boxid");
- 	
-    	//±£´æSocket-ÊÖ»ú
+		
+    	//ä¿å­˜Socket-æ‰‹æœº
 		CollectionHashMap.socMap.remove(mobile1);
 		CollectionHashMap.socMap.put(mobile1, client);
 		
 		String jsonStr = object.toString()+"\r\n";
 		
-		System.out.println("ÊÖ»úÏÂÔØÇëÇóĞÅÏ¢"+jsonStr);
+		System.out.println("æ‰‹æœºä¸‹è½½è¯·æ±‚ä¿¡æ¯"+jsonStr);
 		
-		/*BufferedOutputStream  bos = new BufferedOutputStream (sd.getOutputStream());
-        bos.write(jsonStr.getBytes());
-        bos.flush();
-        bos.close();*/
-		
-		//×ª·¢ÇëÇó¸øºĞ×Ó
-		downloadTwo(object,boxid1);
+		//è½¬å‘è¯·æ±‚ç»™ç›’å­
+		downloadTwo(object);
 	}
 	
-	private void downloadTwo(JSONObject object,String boxid1) {
+	private void downloadTwo(JSONObject object) {
 		
-		System.out.println("·şÎñÆ÷×ª·¢ÏÂÔØÇëÇóµ½ºĞ×Ó");
+		System.out.println("æœåŠ¡å™¨è½¬å‘ä¸‹è½½è¯·æ±‚åˆ°ç›’å­");
 		
 		try {  
             String jsonString=object.toString();
             
             System.out.println(jsonString);
             
-            String head = jsonString+"\r\n";  
+            String head = " "+jsonString+"\r\n";  
+            String boxid1 = object.getJSONObject("user").getString("boxid");
             
-            //ÕÒ³öÊÖ»úsocket
+            //æ‰¾å‡ºæ‰‹æœºsocket
             Socket socket = CollectionHashMap.socMap.get(boxid1);
             BufferedOutputStream  bos = new BufferedOutputStream (socket.getOutputStream());
 	        bos.write(head.getBytes("UTF-8"));
@@ -119,21 +118,21 @@ public class SSocketHandler implements Runnable {
 		
 	}
 
-	//±£´æºĞ×Ó´«»ØµÄÏÂÔØÎÄ¼ş£»
+	//ä¿å­˜ç›’å­ä¼ å›çš„ä¸‹è½½æ–‡ä»¶ï¼›
 	private void downloadBack(JSONObject object) {
-		// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
-		//·şÎñÆ÷±£´æ£»
+		// TODO è‡ªåŠ¨ç”Ÿæˆçš„æ–¹æ³•å­˜æ ¹
+		//æœåŠ¡å™¨ä¿å­˜ï¼›
 				try {
-					System.out.println("ºĞ×Ó»Ø´«ÏÂÔØÎÄ¼ş "
+					System.out.println("ç›’å­å›ä¼ ä¸‹è½½æ–‡ä»¶ "
 							+ client.getInetAddress() + " @ " + client.getPort());
 					PushbackInputStream inStream = new PushbackInputStream(
 							client.getInputStream());
-					// µÃµ½¿Í»§¶Ë·¢À´µÄµÚÒ»ĞĞĞ­ÒéÊı¾İ£ºContent-Length=143253434;filename=xxx.3gp;sourceid=
-					// Èç¹ûÓÃ»§³õ´ÎÉÏ´«ÎÄ¼ş£¬sourceidµÄÖµÎª¿Õ¡£
+					// å¾—åˆ°å®¢æˆ·ç«¯å‘æ¥çš„ç¬¬ä¸€è¡Œåè®®æ•°æ®ï¼šContent-Length=143253434;filename=xxx.3gp;sourceid=
+					// å¦‚æœç”¨æˆ·åˆæ¬¡ä¸Šä¼ æ–‡ä»¶ï¼Œsourceidçš„å€¼ä¸ºç©ºã€‚
 					//String json = StreamTool.readLine(inStream);
 					//System.out.println(json);
 					if (object != null) {
-						// ÏÂÃæ´ÓĞ­ÒéÊı¾İÖĞ¶ÁÈ¡¸÷ÖÖ²ÎÊıÖµ
+						// ä¸‹é¢ä»åè®®æ•°æ®ä¸­è¯»å–å„ç§å‚æ•°å€¼
 						/*String[] items = json.split(";");
 						String filelength = items[0].substring(items[0].indexOf("=") + 1);
 						String filename = items[1].substring(items[1].indexOf("=") + 1);
@@ -148,51 +147,51 @@ public class SSocketHandler implements Runnable {
 						FileLog log = null;
 						if (null != sourceid && !"".equals(sourceid)) {
 							id = Long.valueOf(sourceid);
-							log = find(id);//²éÕÒÉÏ´«µÄÎÄ¼şÊÇ·ñ´æÔÚÉÏ´«¼ÇÂ¼
+							log = find(id);//æŸ¥æ‰¾ä¸Šä¼ çš„æ–‡ä»¶æ˜¯å¦å­˜åœ¨ä¸Šä¼ è®°å½•
 						}
 						File file = null;
 						int position = 0;
-						if(log==null){//Èç¹ûÉÏ´«µÄÎÄ¼ş²»´æÔÚÉÏ´«¼ÇÂ¼,ÎªÎÄ¼şÌí¼Ó¸ú×Ù¼ÇÂ¼
+						if(log==null){//å¦‚æœä¸Šä¼ çš„æ–‡ä»¶ä¸å­˜åœ¨ä¸Šä¼ è®°å½•,ä¸ºæ–‡ä»¶æ·»åŠ è·Ÿè¸ªè®°å½•
 							//String path = new SimpleDateFormat("yyyy/MM/dd/HH/mm").format(new Date());
 							File dir = new File(downloadPath);
 							if(!dir.exists()) dir.mkdirs();
 							file = new File(dir, filename);
-							if(file.exists()){//Èç¹ûÉÏ´«µÄÎÄ¼ş·¢ÉúÖØÃû£¬È»ºó½øĞĞ¸ÄÃû
+							if(file.exists()){//å¦‚æœä¸Šä¼ çš„æ–‡ä»¶å‘ç”Ÿé‡åï¼Œç„¶åè¿›è¡Œæ”¹å
 								filename = filename.substring(0, filename.indexOf(".")-1)+ dir.listFiles().length+ filename.substring(filename.indexOf("."));
 								file = new File(dir, filename);
 							}
 							save(id, file);
-						}else{// Èç¹ûÉÏ´«µÄÎÄ¼ş´æÔÚÉÏ´«¼ÇÂ¼,¶ÁÈ¡ÉÏ´ÎµÄ¶ÏµãÎ»ÖÃ
-							file = new File(log.getPath());//´ÓÉÏ´«¼ÇÂ¼ÖĞµÃµ½ÎÄ¼şµÄÂ·¾¶
+						}else{// å¦‚æœä¸Šä¼ çš„æ–‡ä»¶å­˜åœ¨ä¸Šä¼ è®°å½•,è¯»å–ä¸Šæ¬¡çš„æ–­ç‚¹ä½ç½®
+							file = new File(log.getPath());//ä»ä¸Šä¼ è®°å½•ä¸­å¾—åˆ°æ–‡ä»¶çš„è·¯å¾„
 							if(file.exists()){
 								File logFile = new File(file.getParentFile(), file.getName()+".log");
 								if(logFile.exists()){
 									Properties properties = new Properties();
 									properties.load(new FileInputStream(logFile));
-									position = Integer.valueOf(properties.getProperty("length"));//¶ÁÈ¡¶ÏµãÎ»ÖÃ
+									position = Integer.valueOf(properties.getProperty("length"));//è¯»å–æ–­ç‚¹ä½ç½®
 								}
 							}
 						}
 						
 						OutputStream outStream = client.getOutputStream();
 						String response = "sourceid="+ id+ ";position="+ position+ "\r\n";
-						//·şÎñÆ÷ÊÕµ½¿Í»§¶ËµÄÇëÇóĞÅÏ¢ºó£¬¸ø¿Í»§¶Ë·µ»ØÏìÓ¦ĞÅÏ¢£ºsourceid=1274773833264;position=0
-						//sourceidÓÉ·şÎñÉú³É£¬Î¨Ò»±êÊ¶ÉÏ´«µÄÎÄ¼ş£¬positionÖ¸Ê¾¿Í»§¶Ë´ÓÎÄ¼şµÄÊ²Ã´Î»ÖÃ¿ªÊ¼ÉÏ´«
+						//æœåŠ¡å™¨æ”¶åˆ°å®¢æˆ·ç«¯çš„è¯·æ±‚ä¿¡æ¯åï¼Œç»™å®¢æˆ·ç«¯è¿”å›å“åº”ä¿¡æ¯ï¼šsourceid=1274773833264;position=0
+						//sourceidç”±æœåŠ¡ç”Ÿæˆï¼Œå”¯ä¸€æ ‡è¯†ä¸Šä¼ çš„æ–‡ä»¶ï¼ŒpositionæŒ‡ç¤ºå®¢æˆ·ç«¯ä»æ–‡ä»¶çš„ä»€ä¹ˆä½ç½®å¼€å§‹ä¸Šä¼ 
 						outStream.write(response.getBytes("utf-8"));
 						
 						RandomAccessFile fileOutStream = new RandomAccessFile(file, "rwd");
-						if(position==0) fileOutStream.setLength(Integer.valueOf(filelength));//ÉèÖÃÎÄ¼ş³¤¶È
-						fileOutStream.seek(position);//ÒÆ¶¯ÎÄ¼şÖ¸¶¨µÄÎ»ÖÃ¿ªÊ¼Ğ´ÈëÊı¾İ
-						byte[] buffer = new byte[1024];
+						if(position==0) fileOutStream.setLength(Integer.valueOf(filelength));//è®¾ç½®æ–‡ä»¶é•¿åº¦
+						fileOutStream.seek(position);//ç§»åŠ¨æ–‡ä»¶æŒ‡å®šçš„ä½ç½®å¼€å§‹å†™å…¥æ•°æ®
+						byte[] buffer = new byte[1024*100];
 						int len = -1;
 						int length = position;
-						while( (len=inStream.read(buffer)) != -1){//´ÓÊäÈëÁ÷ÖĞ¶ÁÈ¡Êı¾İĞ´Èëµ½ÎÄ¼şÖĞ
+						while( (len=inStream.read(buffer)) != -1){//ä»è¾“å…¥æµä¸­è¯»å–æ•°æ®å†™å…¥åˆ°æ–‡ä»¶ä¸­
 							fileOutStream.write(buffer, 0, len);
 							length += len;
 							Properties properties = new Properties();
 							properties.put("length", String.valueOf(length));
 							FileOutputStream logFile = new FileOutputStream(new File(file.getParentFile(), file.getName()+".log"));
-							properties.store(logFile, null);//ÊµÊ±¼ÇÂ¼ÎÄ¼şµÄ×îºó±£´æÎ»ÖÃ
+							properties.store(logFile, null);//å®æ—¶è®°å½•æ–‡ä»¶çš„æœ€åä¿å­˜ä½ç½®
 							logFile.close();
 						}
 						if(length==fileOutStream.length()) {
@@ -211,25 +210,26 @@ public class SSocketHandler implements Runnable {
 		            } catch (IOException e) {}
 				}
 				
-				//×ª·¢ÏÂÔØÎÄ¼ş¸øÊÖ»ú
+				//è½¬å‘ä¸‹è½½æ–‡ä»¶ç»™æ‰‹æœº
 				downloadBackTwo(object);
 	}
 
 	private void downloadBackTwo(JSONObject object) {
-		// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
-		try {  	
+		// TODO è‡ªåŠ¨ç”Ÿæˆçš„æ–¹æ³•å­˜æ ¹
+		System.out.println("æœåŠ¡å™¨è½¬å‘ä¸‹è½½æ–‡ä»¶ç»™æ‰‹æœº");
+		/*try {  	
             String jsonString=object.toString();
             
             System.out.println(jsonString);
             
             String head = jsonString+"\r\n";  
             
-            //ÕÒµ½socket-ÊÖ»úid
+            //æ‰¾åˆ°socket-æ‰‹æœºid
             String mobile1 = object.getJSONObject("head").getString("mobileid");
             Socket socket = CollectionHashMap.socMap.get(mobile1);
             
             OutputStream outStream = socket.getOutputStream();  
-            outStream.write(head.getBytes("utf-8"));  
+            //outStream.write(head.getBytes("utf-8"));  
                       		
     		String filename = object.getString("filename");
     		File uploadFile2 = new File(downloadPath,filename);
@@ -244,11 +244,57 @@ public class SSocketHandler implements Runnable {
             fileOutStream.close();  
             outStream.close();  
             socket.close();
-            
+ 
         } catch (Exception e) {  
             e.printStackTrace();  
-        } 
+        }*/ 
+		
+		try {
+				String mobile1 = object.getJSONObject("head").getString("mobileid");
+		        Socket socket = CollectionHashMap.socMap.get(mobile1);
+		            
+		        String filename = object.getString("filename");
+		        File uploadFile2 = new File(downloadPath,filename);
+		            
+				DataInputStream fis = new DataInputStream(
+						new BufferedInputStream(new FileInputStream(uploadFile2)));
+				DataOutputStream ps = new DataOutputStream(socket.getOutputStream());
+				// å°†æ–‡ä»¶ååŠé•¿åº¦ä¼ ç»™å®¢æˆ·ç«¯ã€‚è¿™é‡Œè¦çœŸæ­£é€‚ç”¨æ‰€æœ‰å¹³å°ï¼Œä¾‹å¦‚ä¸­æ–‡åçš„å¤„ç†ï¼Œè¿˜éœ€è¦åŠ å·¥ï¼Œå…·ä½“å¯ä»¥å‚è§Think In Java
+				// 4thé‡Œæœ‰ç°æˆçš„ä»£ç ã€‚
+				ps.writeUTF(filename);
+				ps.flush();
+				ps.writeLong((long) uploadFile2.length());
+				ps.flush();
+
+				int bufferSize = 8192;
+				byte[] buf = new byte[bufferSize];
+
+				while (true) {
+					int read = 0;
+					if (fis != null) {
+						read = fis.read(buf);
+						// ä»åŒ…å«çš„è¾“å…¥æµä¸­è¯»å–ä¸€å®šæ•°é‡çš„å­—èŠ‚ï¼Œå¹¶å°†å®ƒä»¬å­˜å‚¨åˆ°ç¼“å†²åŒºæ•°ç»„ b
+						// ä¸­ã€‚ä»¥æ•´æ•°å½¢å¼è¿”å›å®é™…è¯»å–çš„å­—èŠ‚æ•°ã€‚åœ¨è¾“å…¥æ•°æ®å¯ç”¨ã€æ£€æµ‹åˆ°æ–‡ä»¶æœ«å°¾ (end of file)
+						// æˆ–æŠ›å‡ºå¼‚å¸¸ä¹‹å‰ï¼Œæ­¤æ–¹æ³•å°†ä¸€ç›´é˜»å¡ã€‚
+					}
+
+					if (read == -1) {
+						break;
+					}
+					ps.write(buf, 0, read);
+				}
+				ps.flush();
+				// æ³¨æ„å…³é—­socketé“¾æ¥å“¦ï¼Œä¸ç„¶å®¢æˆ·ç«¯ä¼šç­‰å¾…serverçš„æ•°æ®è¿‡æ¥ï¼Œ
+				// ç›´åˆ°socketè¶…æ—¶ï¼Œå¯¼è‡´æ•°æ®ä¸å®Œæ•´ã€‚
+				fis.close();
+				socket.close();  
+				System.out.println("ä¸‹è½½æ–‡ä»¶ä¼ è¾“å®Œæˆ");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
+	
 
 	@Override
 	public void run() {
@@ -256,42 +302,41 @@ public class SSocketHandler implements Runnable {
 	}
 	
 	public void ConnectionsRemain(JSONObject object) throws IOException{
-		//Ö±½ÓÈ¡Á÷-ÆÕÍ¨Ğ´·¨£»
+		//ç›´æ¥å–æµ-æ™®é€šå†™æ³•ï¼›
 		/*InputStream in = client.getInputStream();
 		byte[] c = new byte[1024];
 		in.read(c, 0, c.length);
 		
-        System.out.println("¿Í»§¶Ë·¢ËÍÄÚÈİ£º"+new String(c));
+        System.out.println("å®¢æˆ·ç«¯å‘é€å†…å®¹ï¼š"+new String(c));
         
         JSONObject object = JSONObject.fromObject(new String(c));*/
         
     	String boxid1 = object.getJSONObject("head").getString("boxid");
     	
-    	//±£´æSocket-ºĞ×Ó
+    	//ä¿å­˜Socket-ç›’å­
 		CollectionHashMap.socMap.remove(boxid1);
 		CollectionHashMap.socMap.put(boxid1, client);
 
 		System.out.println(object.toString());
-		System.out.println("ºĞ×Óid£º"+boxid1);
+		System.out.println("ç›’å­idï¼š"+boxid1);
 		
 	}
 	
 	public void upload(JSONObject object) throws IOException{
-		System.out.println("ÊÖ»úÉÏ´«ÄÚÈİµ½·şÎñÆ÷");
+		System.out.println("æ‰‹æœºä¸Šä¼ å†…å®¹åˆ°æœåŠ¡å™¨");
 		//354117215727936
-		//ÔÙ´ÓÊÖ»úÍ·ĞÅÏ¢ÖĞ²ğ³öºĞ×Óid£»
+		//å†ä»æ‰‹æœºå¤´ä¿¡æ¯ä¸­æ‹†å‡ºç›’å­idï¼›
 		//Socket s2 = CollectionHashMap.socMap.get("354117215727936");
 		
 		String mobile1 = object.getJSONObject("head").getString("mobileid");
-		String boxid1 = object.getJSONObject("user").getString("boxid");
-    	
-    	//±£´æSocket-ÊÖ»ú
+
+    	//ä¿å­˜Socket-æ‰‹æœº
 		CollectionHashMap.socMap.remove(mobile1);
 		CollectionHashMap.socMap.put(mobile1, client);
 		
 		System.out.println(object.toString());
 		
-		//Ö±½Ó×ª·¢Á÷£»---ÓĞÎÊÌâ£¬´ıÒé£»
+		//ç›´æ¥è½¬å‘æµï¼›---æœ‰é—®é¢˜ï¼Œå¾…è®®ï¼›
 		/*PushbackInputStream in = new PushbackInputStream(
 				client.getInputStream());
 		try {  
@@ -316,18 +361,18 @@ public class SSocketHandler implements Runnable {
             e.printStackTrace();  
         }*/
 		
-		//·şÎñÆ÷±£´æ£»
+		//æœåŠ¡å™¨ä¿å­˜ï¼›
 		try {
 			System.out.println("accepted connenction from "
 					+ client.getInetAddress() + " @ " + client.getPort());
 			PushbackInputStream inStream = new PushbackInputStream(
 					client.getInputStream());
-			// µÃµ½¿Í»§¶Ë·¢À´µÄµÚÒ»ĞĞĞ­ÒéÊı¾İ£ºContent-Length=143253434;filename=xxx.3gp;sourceid=
-			// Èç¹ûÓÃ»§³õ´ÎÉÏ´«ÎÄ¼ş£¬sourceidµÄÖµÎª¿Õ¡£
+			// å¾—åˆ°å®¢æˆ·ç«¯å‘æ¥çš„ç¬¬ä¸€è¡Œåè®®æ•°æ®ï¼šContent-Length=143253434;filename=xxx.3gp;sourceid=
+			// å¦‚æœç”¨æˆ·åˆæ¬¡ä¸Šä¼ æ–‡ä»¶ï¼Œsourceidçš„å€¼ä¸ºç©ºã€‚
 			//String json = StreamTool.readLine(inStream);
 			//System.out.println(json);
 			if (object != null) {
-				// ÏÂÃæ´ÓĞ­ÒéÊı¾İÖĞ¶ÁÈ¡¸÷ÖÖ²ÎÊıÖµ
+				// ä¸‹é¢ä»åè®®æ•°æ®ä¸­è¯»å–å„ç§å‚æ•°å€¼
 				/*String[] items = json.split(";");
 				String filelength = items[0].substring(items[0].indexOf("=") + 1);
 				String filename = items[1].substring(items[1].indexOf("=") + 1);
@@ -342,51 +387,51 @@ public class SSocketHandler implements Runnable {
 				FileLog log = null;
 				if (null != sourceid && !"".equals(sourceid)) {
 					id = Long.valueOf(sourceid);
-					log = find(id);//²éÕÒÉÏ´«µÄÎÄ¼şÊÇ·ñ´æÔÚÉÏ´«¼ÇÂ¼
+					log = find(id);//æŸ¥æ‰¾ä¸Šä¼ çš„æ–‡ä»¶æ˜¯å¦å­˜åœ¨ä¸Šä¼ è®°å½•
 				}
 				File file = null;
 				int position = 0;
-				if(log==null){//Èç¹ûÉÏ´«µÄÎÄ¼ş²»´æÔÚÉÏ´«¼ÇÂ¼,ÎªÎÄ¼şÌí¼Ó¸ú×Ù¼ÇÂ¼
+				if(log==null){//å¦‚æœä¸Šä¼ çš„æ–‡ä»¶ä¸å­˜åœ¨ä¸Šä¼ è®°å½•,ä¸ºæ–‡ä»¶æ·»åŠ è·Ÿè¸ªè®°å½•
 					//String path = new SimpleDateFormat("yyyy/MM/dd/HH/mm").format(new Date());
 					File dir = new File(uploadPath);
 					if(!dir.exists()) dir.mkdirs();
 					file = new File(dir, filename);
-					if(file.exists()){//Èç¹ûÉÏ´«µÄÎÄ¼ş·¢ÉúÖØÃû£¬È»ºó½øĞĞ¸ÄÃû
+					if(file.exists()){//å¦‚æœä¸Šä¼ çš„æ–‡ä»¶å‘ç”Ÿé‡åï¼Œç„¶åè¿›è¡Œæ”¹å
 						filename = filename.substring(0, filename.indexOf(".")-1)+ dir.listFiles().length+ filename.substring(filename.indexOf("."));
 						file = new File(dir, filename);
 					}
 					save(id, file);
-				}else{// Èç¹ûÉÏ´«µÄÎÄ¼ş´æÔÚÉÏ´«¼ÇÂ¼,¶ÁÈ¡ÉÏ´ÎµÄ¶ÏµãÎ»ÖÃ
-					file = new File(log.getPath());//´ÓÉÏ´«¼ÇÂ¼ÖĞµÃµ½ÎÄ¼şµÄÂ·¾¶
+				}else{// å¦‚æœä¸Šä¼ çš„æ–‡ä»¶å­˜åœ¨ä¸Šä¼ è®°å½•,è¯»å–ä¸Šæ¬¡çš„æ–­ç‚¹ä½ç½®
+					file = new File(log.getPath());//ä»ä¸Šä¼ è®°å½•ä¸­å¾—åˆ°æ–‡ä»¶çš„è·¯å¾„
 					if(file.exists()){
 						File logFile = new File(file.getParentFile(), file.getName()+".log");
 						if(logFile.exists()){
 							Properties properties = new Properties();
 							properties.load(new FileInputStream(logFile));
-							position = Integer.valueOf(properties.getProperty("length"));//¶ÁÈ¡¶ÏµãÎ»ÖÃ
+							position = Integer.valueOf(properties.getProperty("length"));//è¯»å–æ–­ç‚¹ä½ç½®
 						}
 					}
 				}
 				
 				OutputStream outStream = client.getOutputStream();
 				String response = "sourceid="+ id+ ";position="+ position+ "\r\n";
-				//·şÎñÆ÷ÊÕµ½¿Í»§¶ËµÄÇëÇóĞÅÏ¢ºó£¬¸ø¿Í»§¶Ë·µ»ØÏìÓ¦ĞÅÏ¢£ºsourceid=1274773833264;position=0
-				//sourceidÓÉ·şÎñÉú³É£¬Î¨Ò»±êÊ¶ÉÏ´«µÄÎÄ¼ş£¬positionÖ¸Ê¾¿Í»§¶Ë´ÓÎÄ¼şµÄÊ²Ã´Î»ÖÃ¿ªÊ¼ÉÏ´«
+				//æœåŠ¡å™¨æ”¶åˆ°å®¢æˆ·ç«¯çš„è¯·æ±‚ä¿¡æ¯åï¼Œç»™å®¢æˆ·ç«¯è¿”å›å“åº”ä¿¡æ¯ï¼šsourceid=1274773833264;position=0
+				//sourceidç”±æœåŠ¡ç”Ÿæˆï¼Œå”¯ä¸€æ ‡è¯†ä¸Šä¼ çš„æ–‡ä»¶ï¼ŒpositionæŒ‡ç¤ºå®¢æˆ·ç«¯ä»æ–‡ä»¶çš„ä»€ä¹ˆä½ç½®å¼€å§‹ä¸Šä¼ 
 				outStream.write(response.getBytes("utf-8"));
 				
 				RandomAccessFile fileOutStream = new RandomAccessFile(file, "rwd");
-				if(position==0) fileOutStream.setLength(Integer.valueOf(filelength));//ÉèÖÃÎÄ¼ş³¤¶È
-				fileOutStream.seek(position);//ÒÆ¶¯ÎÄ¼şÖ¸¶¨µÄÎ»ÖÃ¿ªÊ¼Ğ´ÈëÊı¾İ
-				byte[] buffer = new byte[1024];
+				if(position==0) fileOutStream.setLength(Integer.valueOf(filelength));//è®¾ç½®æ–‡ä»¶é•¿åº¦
+				fileOutStream.seek(position);//ç§»åŠ¨æ–‡ä»¶æŒ‡å®šçš„ä½ç½®å¼€å§‹å†™å…¥æ•°æ®
+				byte[] buffer = new byte[1024*100];
 				int len = -1;
 				int length = position;
-				while( (len=inStream.read(buffer)) != -1){//´ÓÊäÈëÁ÷ÖĞ¶ÁÈ¡Êı¾İĞ´Èëµ½ÎÄ¼şÖĞ
+				while( (len=inStream.read(buffer)) != -1){//ä»è¾“å…¥æµä¸­è¯»å–æ•°æ®å†™å…¥åˆ°æ–‡ä»¶ä¸­
 					fileOutStream.write(buffer, 0, len);
 					length += len;
 					Properties properties = new Properties();
 					properties.put("length", String.valueOf(length));
 					FileOutputStream logFile = new FileOutputStream(new File(file.getParentFile(), file.getName()+".log"));
-					properties.store(logFile, null);//ÊµÊ±¼ÇÂ¼ÎÄ¼şµÄ×îºó±£´æÎ»ÖÃ
+					properties.store(logFile, null);//å®æ—¶è®°å½•æ–‡ä»¶çš„æœ€åä¿å­˜ä½ç½®
 					logFile.close();
 				}
 				if(length==fileOutStream.length()) delete(id);
@@ -403,52 +448,61 @@ public class SSocketHandler implements Runnable {
             } catch (IOException e) {}
 		}
 		
-		//×ª·¢ÎÄ¼ş£º
-		uploadTwo(boxid1,object);
+		//è½¬å‘æ–‡ä»¶ï¼š
+		//uploadTwo(object);
 	}
 	
-	private void uploadTwo(String boxid1,JSONObject object) {
-		System.out.println("·şÎñÆ÷×ª·¢ÉÏ´«ÎÄ¼şµ½ºĞ×Ó");
+	private void uploadTwo(JSONObject object) {
+		System.out.println("æœåŠ¡å™¨è½¬å‘ä¸Šä¼ æ–‡ä»¶åˆ°ç›’å­");
 		//354117215727936
 
 		/*String filename="e:/chen/sshWeb.rar";
 		File uploadFile = new File(filename);*/
-		uploadFile(boxid1,object);
+		uploadFile(object);
 	}
 	 
-    private void uploadFile(String boxid1,JSONObject object) {
+    private void uploadFile(JSONObject object) {
     	try {  
 		
             String jsonString=object.toString();
             
             System.out.println(jsonString);
             
-            String head = jsonString+"\r\n";  
+            String head = " "+jsonString+"\r\n";  
             
-            //ÕÒµ½ºĞ×Óid£»
+            //æ‰¾åˆ°ç›’å­idï¼› 
+            String boxid1 = object.getJSONObject("user").getString("boxid");
             Socket socket = CollectionHashMap.socMap.get(boxid1);
+
             OutputStream outStream = socket.getOutputStream();  
-            outStream.write(head.getBytes("UTF-8"));  
-                      
+            outStream.write(head.getBytes("UTF-8"));
+            
+            PushbackInputStream inStream = new PushbackInputStream(socket.getInputStream());      
+            String response = StreamTool.readLine(inStream);  
+            String[] items = response.split(";");  
+            String responseid = items[0].substring(items[0].indexOf("=")+1);  
+            String position = items[1].substring(items[1].indexOf("=")+1);  
+            
             String filename = object.getString("filename");
     		File uploadFile2 = new File(uploadPath,filename);
-    		
+             
             RandomAccessFile fileOutStream = new RandomAccessFile(uploadFile2, "r");  
-            fileOutStream.seek(Integer.valueOf(0));  
-            byte[] buffer = new byte[1024];  
-            int len = -1;   
+            fileOutStream.seek(Integer.valueOf(position));  
+            byte[] buffer = new byte[1024*100];  
+            int len = -1;  
             while(start&&(len = fileOutStream.read(buffer)) != -1){  
                 outStream.write(buffer, 0, len);   
             }  
             fileOutStream.close();  
-            outStream.close();  
-                        
+            outStream.close();   
+            System.out.println("ä¸Šä¼ æ–‡ä»¶ä¼ è¾“å®Œæˆ");
         } catch (Exception e) {  
             e.printStackTrace();  
         }  
     }
+    
     private void uploadBack(JSONObject object) {
-		System.out.println("ºĞ×Ó·µ»ØÉÏ´«½á¹ûµ½·şÎñÆ÷-·şÎñÆ÷×ª·¢¸øÊÖ»ú");
+		System.out.println("ç›’å­è¿”å›ä¸Šä¼ ç»“æœåˆ°æœåŠ¡å™¨-æœåŠ¡å™¨è½¬å‘ç»™æ‰‹æœº");
 		
 		try {  
             String jsonString=object.toString();
@@ -457,7 +511,7 @@ public class SSocketHandler implements Runnable {
             
             String head = jsonString+"\r\n";  
             
-            //ÕÒ³öÊÖ»úsocket
+            //æ‰¾å‡ºæ‰‹æœºsocket
             String mobile1 = object.getJSONObject("head").getString("mobileid");
             Socket socket = CollectionHashMap.socMap.get(mobile1);
             BufferedOutputStream  bos = new BufferedOutputStream (socket.getOutputStream());
@@ -475,13 +529,13 @@ public class SSocketHandler implements Runnable {
 		return datas.get(sourceid);
 	}
 
-	// ±£´æÉÏ´«¼ÇÂ¼
+	// ä¿å­˜ä¸Šä¼ è®°å½•
 	public void save(Long id, File saveFile) {
-		// ÈÕºó¿ÉÒÔ¸Ä³ÉÍ¨¹ıÊı¾İ¿â´æ·Å
+		// æ—¥åå¯ä»¥æ”¹æˆé€šè¿‡æ•°æ®åº“å­˜æ”¾
 		datas.put(id, new FileLog(id, saveFile.getAbsolutePath()));
 	}
 
-	// µ±ÎÄ¼şÉÏ´«Íê±Ï£¬É¾³ı¼ÇÂ¼
+	// å½“æ–‡ä»¶ä¸Šä¼ å®Œæ¯•ï¼Œåˆ é™¤è®°å½•
 	public void delete(long sourceid) {
 		if (datas.containsKey(sourceid))
 			datas.remove(sourceid);

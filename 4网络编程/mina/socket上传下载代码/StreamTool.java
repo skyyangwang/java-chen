@@ -46,9 +46,9 @@ loop:		while (true) {
 	}
 	 
 	/**
-	* ¶ÁÈ¡Á÷
+	* ï¿½ï¿½È¡ï¿½ï¿½
 	* @param inStream
-	* @return ×Ö½ÚÊý×é
+	* @return ï¿½Ö½ï¿½ï¿½ï¿½ï¿½ï¿½
 	* @throws Exception
 	*/
 	public static byte[] readStream(InputStream inStream) throws Exception{
