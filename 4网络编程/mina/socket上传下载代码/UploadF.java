@@ -13,7 +13,7 @@ public class UploadF {
 	
 	public static void main(String[] args) {
 		
-		String filename="e:/nana南岸.txt";
+		String filename="e:/110321152142222.jpg";
 		File uploadFile = new File(filename);
 		uploadFile(uploadFile);  
 	}
@@ -28,7 +28,7 @@ public class UploadF {
     		jsonObject.put("filename", uploadFile.getName());
     		
     		JSONObject jsonObject2 = new JSONObject();
-    		jsonObject2.put("method", 10041);
+    		jsonObject2.put("method", 10051);
     		jsonObject2.put("mobileid", "sss");
     		jsonObject2.put("status", 0);
     		

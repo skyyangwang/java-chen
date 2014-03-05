@@ -30,7 +30,7 @@ public class SSocket {
                 //new SSocketHandler(client);
             }    
         } catch (Exception e) {    
-            System.out.println("服务器异常: " + e);    
+            System.out.println("服务器异常" + e);    
         }
     }
 
