@@ -1,5 +1,5 @@
 
-首先：		---等money宽松了再买书；
+首先：
 
 Ibatis实战；
 
@@ -8,18 +8,22 @@ Spring实战(第3版)
 
 数据库加强的；---高性能的mysql,3版；---必须；
 
-Oracle Database 11g性能优化攻略
 
-head first jsp；
 
 //////////////////////////////////////////
 
 其次：
+Oracle Database 11g性能优化攻略
+
+head first jsp；
+
+---
 
 mongodb买书；---MongoDB实战
 
 深入NoSQL
 
+---
 
 Head First 设计模式（入门）
 设计模式：可复用面向对象软件的基础
