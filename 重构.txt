@@ -24,3 +24,11 @@
 
 学习方式：---新技术学习方式；如：Mongodb；
 看官方文档，google翻一个，英文原文；然后边看边测试；而基本学好；
+
+
+
+重构：
+1，框架；shs框架；归档ibatis，struts2；
+2，集群；tomcat,mysql集群；---oracle,weblogic等先不管；
+3，nosql-mongodb；云-hadoop+hive+hbase3者；
+4，soa；
