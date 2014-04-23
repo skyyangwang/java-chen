@@ -1,6 +1,7 @@
 
-struts2，已有+书完，归档；
-ibaits，公司水平-即基本操作+分页+公共化处理，归档；
 
-~
-然后的就是新框架的内容；
+Spring data使用：
+http://www.infoq.com/cn/articles/spring-data-intro
+···使用了关系数据库，nosql多种orm后，使用Spring data集成之。
+
+
