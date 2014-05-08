@@ -4,14 +4,20 @@
 《Hadoop权威指南（第3版）》
 
 
-HTML XHTML CSS基础教程(第6版)
-head first jsp；
+
+Soa：
+SOA与REST:用REST构建企业级SOA解决方案
+《SOA概念、技术与设计》
+
+
+rest:
+RESTful Web Services Cookbook中文版
+REST实战:中文版超媒体和系统架构
 
 
 
 ////////////////////////////////////////////
 
-再：
-晚些：设计模式，soa的书；---相关其它；
+
 
 
