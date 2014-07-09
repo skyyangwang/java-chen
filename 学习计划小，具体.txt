@@ -13,8 +13,8 @@ Mongodb加强，集群实现；
 
 
 8月：
+消息；Spring jms；RabbitMQ;
 
-lucence；
 框架加深；---权限，后台框架页面；编辑器；分页；多选删除；上传下载等重要的实现；
 
 
@@ -23,8 +23,9 @@ lucence；
 ---
 
 9：
+lucence；
 工作流；activiti；
-消息；Spring jms；RabbitMQ;
+
 
 
 10:
