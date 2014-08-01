@@ -1,9 +1,4 @@
-
-预计：6或7月；
-
-《Hadoop权威指南（第3版）》---没中文版的，所以暂时不买；
-
-
+2014要买的书:
 
 Soa：
 SOA与REST:用REST构建企业级SOA解决方案
@@ -13,6 +8,21 @@ SOA与REST:用REST构建企业级SOA解决方案
 rest:
 RESTful Web Services Cookbook中文版
 REST实战:中文版超媒体和系统架构
+
+
+
+
+--------------------
+
+2015:
+
+head first jsp
+
+HTML XHTML CSS基础教程(第6版)
+
+
+Head First 设计模式
+
 
 
 
