@@ -14,3 +14,6 @@
 
 ------------------
 
+Twitter的Redis/Memcached代理服务：Twemproxy；---开源，网上有；
+Facebook的Memcached协议路由器：McRouter---开源，网上有；
+Youtube的Mysql中间件：Vitess
