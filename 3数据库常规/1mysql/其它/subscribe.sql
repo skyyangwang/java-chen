@@ -8,10 +8,11 @@ SUBSCRIBE:BEGIN
 	DECLARE v_borrow_timelimit INT;
 	DECLARE v_borrow_style INT;
 
+	DECLARE v_capital decimal(20,8) DEFAULT 0;
+	DECLARE v_account_real decimal(20,8) DEFAULT 0;
 	DECLARE v_transfer_account decimal(20,8) DEFAULT 0;
 	DECLARE v_transfer_account_yes decimal(20,8) DEFAULT 0;
 	DECLARE v_transfer_userid INT;
-	DECLARE v_btransfer_endtime varchar(20);
 
 	DECLARE v_transfer_draw_money decimal(20,8) DEFAULT 0;
 	DECLARE v_transfer_no_draw_money decimal(20,8) DEFAULT 0;
@@ -27,8 +28,17 @@ SUBSCRIBE:BEGIN
 	DECLARE v_no_draw_money decimal(20,8) DEFAULT 0;
 
 	DECLARE v_tender_id int;
-	
-	DECLARE v_interest decimal(20,8);
+
+	DECLARE v_repayment_capital decimal(20,8) DEFAULT 0;
+	DECLARE v_repayment_interest decimal(20,8) DEFAULT 0;
+	DECLARE v_repayment_account decimal(20,8) DEFAULT 0;
+	DECLARE v_repayment_capitalsum decimal(20,8) DEFAULT 0;
+	DECLARE v_repayment_interestsum  decimal(20,8) DEFAULT 0;
+	DECLARE v_repayment_accountsum  decimal(20,8) DEFAULT 0;
+
+	DECLARE v_no_account  decimal(20,8) DEFAULT 0;
+	DECLARE v_no_interest  decimal(20,8) DEFAULT 0;
+
 	DECLARE v_money decimal(20,8) default 0;
   DECLARE v_isvip bigint;
 	DECLARE o_userLevel VARCHAR(10);
@@ -47,11 +57,11 @@ SUBSCRIBE:BEGIN
   END IF;
 		
 		/**锁定transfer**/
-  	SELECT BORROW_ID,BORROW_NAME,ACCOUNT,ACCOUNT_YES,BORROW_APR,BORROW_TIME_LIMIT,USER_ID,BORROW_STYLE INTO 
-  	v_borrow_id,v_borrow_name,v_transfer_account,v_transfer_account_yes,v_borrow_apr,v_borrow_timelimit,v_transfer_userid,v_borrow_style
+  	SELECT BORROW_ID,BORROW_NAME,TENDER_ID,CAPITAL,ACCOUNT,ACCOUNT_REAL,ACCOUNT_YES,BORROW_APR,BORROW_TIME_LIMIT,USER_ID,BORROW_STYLE INTO 
+  	v_borrow_id,v_borrow_name,v_tender_id,v_capital,v_transfer_account,v_account_real,v_transfer_account_yes,v_borrow_apr,v_borrow_timelimit,v_transfer_userid,v_borrow_style
   	FROM rocky_b_transfer WHERE id = transferid FOR UPDATE;
 		
-		SET v_transfer_remaind = v_transfer_account - v_transfer_account_yes;
+		SET v_transfer_remaind = v_account_real - v_transfer_account_yes;
 		-- 如果标剩余金额小于投标金额，退出存储过程
 		IF v_transfer_remaind < v_money THEN
 					SET msg = '00003';
@@ -84,44 +94,66 @@ SUBSCRIBE:BEGIN
 			/** 更新账户资金 **/
 			UPDATE rocky_account SET USE_MONEY = USE_MONEY - v_money, NO_USE_MONEY = NO_USE_MONEY + v_money, DRAW_MONEY = DRAW_MONEY - v_transfer_draw_money, NO_DRAW_MONEY = NO_DRAW_MONEY - v_transfer_no_draw_money WHERE USER_ID = userid;
 
-    IF v_borrow_style = 3 THEN
-      /**按月到期还本付息**/
-      SET v_interest = ROUND(v_money*v_borrow_apr/100/12*v_borrow_timelimit,2);
-    ELSEIF v_borrow_style = 4 THEN
-      /**按天还款**/
-      SET v_interest = ROUND(v_money*v_borrow_apr/100/360*v_borrow_timelimit,2);
-    ELSEIF v_borrow_style = 1 THEN
-      /**等额本息**/
-      SET v_interest = ROUND((((v_money*(v_borrow_apr/100/12)*POW(v_borrow_apr/100/12+1,v_borrow_timelimit)/(POW(v_borrow_apr/100/12+1,v_borrow_timelimit)-1)))*v_borrow_timelimit-tendermoney),2);      
-    ELSEIF v_borrow_style = 2 THEN
-      /**按月付息到期还本**/
-      SET v_interest = ROUND(v_money*v_borrow_apr/100/12*v_borrow_timelimit,2);
-    END IF;
+		/*投标记录表查询，总代收，总利息*/
+		select REPAYMENT_ACCOUNT-REPAYMENT_YESACCOUNT,INTEREST-REPAYMENT_YESINTEREST INTO
+		v_no_account,v_no_interest
+		from  rocky_b_tenderrecord  where ID = v_tender_id;
+
+		/*认购情形-一标满*/  
+		IF v_money = v_account_real THEN
+			/*认购表-本金*/  
+			SET v_repayment_capital = v_capital;
+			/*认购表-利息*/
+			SET v_repayment_interest = v_no_interest;
+			/*认购表-代收*/
+			SET v_repayment_account = v_no_account;
+
+		/*认购情形-最后一标*/
+		ELSEIF v_money = v_transfer_remaind  THEN
+
+		/*认购表查询，本金、利息、代收*/
+		select sum(REPAYMENT_CAPITAL),sum(REPAYMENT_INTEREST),sum(REPAYMENT_ACCOUNT) INTO
+		v_repayment_capitalsum,v_repayment_interestsum,v_repayment_accountsum
+  	FROM rocky_b_subscribe WHERE TRANSFER_ID = transferid;
+
+			/*认购表-本金*/
+			SET v_repayment_capital = v_capital-v_repayment_capitalsum;
+			/*认购表-利息*/
+			SET v_repayment_interest = v_capital-v_repayment_interestsum;
+			/*认购表-代收*/
+			SET v_repayment_account = v_capital-v_repayment_accountsum;
+	
+		/*认购情形-普通*/	
+		ELSE	
+			/*认购表-本金*/
+			SET v_repayment_capital = v_capital*(v_money/v_account_real);
+			/*认购表-利息*/
+			SET v_repayment_interest = ROUND(v_no_interest*ROUND(v_money/v_account_real,8),2);
+			/*认购表-代收*/
+			SET v_repayment_account = ROUND(v_no_account*ROUND(v_money/v_account_real,8),2);
+		END IF;
+		
 	
 		/*是否是vip*/
-    SET v_isvip = IFNULL( (SELECT PASSED  from rocky_vip_appro WHERE USER_ID = userid),0);
+    SET v_isvip = IFNULL( (SELECT PASSED  from rocky_vip_appro WHERE USER_ID = v_transfer_userid),0);
     IF v_isvip = -1 THEN
          SET v_isvip = 0;
     END IF;
 		/**获得用户会员等级和比率*/
-	  CALL getUserLevelRatio(userid,o_userLevel,o_ratio);
+	  CALL getUserLevelRatio(v_transfer_userid,o_userLevel,o_ratio);
     
     	/**新增认购记录**/
   		INSERT INTO `rocky_b_subscribe` (`USER_ID`, `TRANSFER_ID`,BORROW_ID, `ACCOUNT`, `REPAYMENT_CAPITAL`, `REPAYMENT_INTEREST`, `REPAYMENT_ACCOUNT`, `DRAW_MONEY`, `NO_DRAW_MONEY`, `USER_LEVEL`, `RATIO`,`IS_VIP`, `STATUS`,  `ADD_TIME`,`ADD_IP`,`SUBSCRIBE_TYPE`) 
-  		VALUES ( userid,transferid,v_borrow_id,v_money,v_money,v_interest,v_interest+v_money,0,0,o_userLevel,o_ratio,v_isvip,0,current_timestamp,addip,0);
+  		VALUES ( userid,transferid,v_borrow_id,v_money,v_repayment_capital,v_repayment_interest,v_repayment_account,0,0,o_userLevel,o_ratio,v_isvip,0,current_timestamp,addip,0);
 			/**新增债权转让冻结log**/		
 			INSERT INTO rocky_accountlog (USER_ID,TYPE,TOTAL,MONEY,USE_MONEY,NO_USE_MONEY,COLLECTION,TO_USER,REMARK,ADDIP,ADDTIME,`DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
-			VALUES (userid, 'transfer_cold',v_account_total,v_money,v_account_usemoney-v_money,v_account_nousemoney+v_money,v_account_collection,v_transfer_userid,'按手动投标方式投标，资金冻结成功。',addip,current_date,v_draw_money - v_transfer_draw_money, v_no_draw_money - v_transfer_no_draw_money, v_first_borrow_use_money,v_borrow_id,v_borrow_name);
+			VALUES (userid, 'transfer_cold',v_account_total,v_money,v_account_usemoney-v_money,v_account_nousemoney+v_money,v_account_collection,v_transfer_userid,'按手动认购方式认购，资金冻结成功。',addip,current_date,v_draw_money - v_transfer_draw_money, v_no_draw_money - v_transfer_no_draw_money, v_first_borrow_use_money,v_borrow_id,v_borrow_name);
 
 	
-	SET v_transfer_remaind = v_transfer_account - v_transfer_account_yes;
+	/**满标-修改债权转让表状态*/
+	SET v_transfer_remaind = v_account_real - v_transfer_account_yes;
    IF v_transfer_account_yes = v_transfer_account THEN
-			IF v_borrow_style = 4 THEN
-				SET v_btransfer_endtime =  UNIX_TIMESTAMP(DATE_ADD(CURRENT_TIMESTAMP(),INTERVAL v_borrow_timelimit DAY));
-			ELSE
-				SET v_btransfer_endtime = UNIX_TIMESTAMP(DATE_ADD(CURRENT_TIMESTAMP(),INTERVAL v_borrow_timelimit MONTH));
-			END IF;
-      UPDATE rocky_b_transfer SET `STATUS` = 3,SUCCESS_TIME = current_timestamp,END_TIME = v_btransfer_endtime  WHERE ID = transferid;
+      UPDATE rocky_b_transfer SET `STATUS` = 3,SUCCESS_TIME = current_timestamp  WHERE ID = transferid;
     END IF;
   
 
