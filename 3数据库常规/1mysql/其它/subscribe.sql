@@ -91,13 +91,12 @@ SUBSCRIBE:BEGIN
 					SET v_transfer_no_draw_money = 0;
 					SET v_transfer_draw_money = v_money;
 			END IF;
-			/** 更新账户资金 **/
-			UPDATE rocky_account SET USE_MONEY = USE_MONEY - v_money, NO_USE_MONEY = NO_USE_MONEY + v_money, DRAW_MONEY = DRAW_MONEY - v_transfer_draw_money, NO_DRAW_MONEY = NO_DRAW_MONEY - v_transfer_no_draw_money WHERE USER_ID = userid;
+			
 
-		/*投标记录表查询，总代收，总利息*/
-		select REPAYMENT_ACCOUNT-REPAYMENT_YESACCOUNT,INTEREST-REPAYMENT_YESINTEREST INTO
+		/*待收记录表查询-状态0-尚未支付的，总代收，总利息*/
+		select sum(REPAY_ACCOUNT),sum(INTEREST) INTO
 		v_no_account,v_no_interest
-		from  rocky_b_tenderrecord  where ID = v_tender_id;
+		from  rocky_b_collectionrecord  where TENDER_ID = v_tender_id and `STATUS`=0;
 
 		/*认购情形-一标满*/  
 		IF v_money = v_account_real THEN
@@ -119,14 +118,14 @@ SUBSCRIBE:BEGIN
 			/*认购表-本金*/
 			SET v_repayment_capital = v_capital-v_repayment_capitalsum;
 			/*认购表-利息*/
-			SET v_repayment_interest = v_capital-v_repayment_interestsum;
+			SET v_repayment_interest = v_no_interest-v_repayment_interestsum;
 			/*认购表-代收*/
-			SET v_repayment_account = v_capital-v_repayment_accountsum;
+			SET v_repayment_account = v_no_account-v_repayment_accountsum;
 	
 		/*认购情形-普通*/	
 		ELSE	
 			/*认购表-本金*/
-			SET v_repayment_capital = v_capital*(v_money/v_account_real);
+			SET v_repayment_capital = ROUND(v_capital*ROUND(v_money/v_account_real,8),2);
 			/*认购表-利息*/
 			SET v_repayment_interest = ROUND(v_no_interest*ROUND(v_money/v_account_real,8),2);
 			/*认购表-代收*/
@@ -145,9 +144,13 @@ SUBSCRIBE:BEGIN
     	/**新增认购记录**/
   		INSERT INTO `rocky_b_subscribe` (`USER_ID`, `TRANSFER_ID`,BORROW_ID, `ACCOUNT`, `REPAYMENT_CAPITAL`, `REPAYMENT_INTEREST`, `REPAYMENT_ACCOUNT`, `DRAW_MONEY`, `NO_DRAW_MONEY`, `USER_LEVEL`, `RATIO`,`IS_VIP`, `STATUS`,  `ADD_TIME`,`ADD_IP`,`SUBSCRIBE_TYPE`) 
   		VALUES ( userid,transferid,v_borrow_id,v_money,v_repayment_capital,v_repayment_interest,v_repayment_account,0,0,o_userLevel,o_ratio,v_isvip,0,current_timestamp,addip,0);
+			
+			/** 更新账户资金 **/
+			UPDATE rocky_account SET USE_MONEY = USE_MONEY - v_money, NO_USE_MONEY = NO_USE_MONEY + v_money, DRAW_MONEY = DRAW_MONEY - v_transfer_draw_money, NO_DRAW_MONEY = NO_DRAW_MONEY - v_transfer_no_draw_money,collection=v_repayment_account WHERE USER_ID = userid;
+
 			/**新增债权转让冻结log**/		
 			INSERT INTO rocky_accountlog (USER_ID,TYPE,TOTAL,MONEY,USE_MONEY,NO_USE_MONEY,COLLECTION,TO_USER,REMARK,ADDIP,ADDTIME,`DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
-			VALUES (userid, 'transfer_cold',v_account_total,v_money,v_account_usemoney-v_money,v_account_nousemoney+v_money,v_account_collection,v_transfer_userid,'按手动认购方式认购，资金冻结成功。',addip,current_date,v_draw_money - v_transfer_draw_money, v_no_draw_money - v_transfer_no_draw_money, v_first_borrow_use_money,v_borrow_id,v_borrow_name);
+			VALUES (userid, 'transfer_cold',v_account_total,v_money,v_account_usemoney-v_money,v_account_nousemoney+v_money,v_repayment_account,v_transfer_userid,'按手动认购方式认购，资金冻结成功。',addip,current_date,v_draw_money - v_transfer_draw_money, v_no_draw_money - v_transfer_no_draw_money, v_first_borrow_use_money,v_borrow_id,v_borrow_name);
 
 	
 	/**满标-修改债权转让表状态*/
