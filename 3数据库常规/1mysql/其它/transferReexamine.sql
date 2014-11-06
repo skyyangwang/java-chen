@@ -1,7 +1,7 @@
-drop procedure if exists  subscribeReexamine;  
-CREATE PROCEDURE `subscribeReexamine`(IN transferid BIGINT,OUT msg VARCHAR(5))
-    COMMENT '认购-满标后自动复审'
-SUBSCRIBEREEXAMINE:BEGIN
+drop procedure if exists  transferReexamine;  
+CREATE PROCEDURE `transferReexamine`(IN transferid BIGINT,OUT msg VARCHAR(5))
+    COMMENT '债权转让-满标复审'
+TRANSFERREEXAMINE:BEGIN
 
 	/* 定义认购表变量 */
   declare v_subscribe_id int(11);
@@ -77,7 +77,7 @@ SUBSCRIBEREEXAMINE:BEGIN
 
 	IF v_account_real != v_buy_moneysum THEN 
 			SET msg = '00002';
-	  LEAVE SUBSCRIBEREEXAMINE;
+	  LEAVE TRANSFERREEXAMINE;
   END IF;
 
 	/**锁定account**/

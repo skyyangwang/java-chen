@@ -1,6 +1,6 @@
 drop procedure if exists  subscribe;  
 CREATE PROCEDURE `subscribe`(IN transferid BIGINT, IN tendermoney DECIMAL(20,8), IN userid BIGINT, IN addip VARCHAR(20), IN tenderType VARCHAR(1), OUT msg VARCHAR(5))
-    COMMENT '手动认购'
+    COMMENT '债权转让-手动认购'
 SUBSCRIBE:BEGIN
 	DECLARE v_borrow_id INT;
   DECLARE v_borrow_name varchar(100);
@@ -18,6 +18,7 @@ SUBSCRIBE:BEGIN
 	DECLARE v_transfer_no_draw_money decimal(20,8) DEFAULT 0;
 	DECLARE v_transfer_remaind decimal(20,8) DEFAULT 0;
 
+	/* 账户表变量 */
 	DECLARE v_account_total decimal(20,8) DEFAULT 0;
 	DECLARE v_account_usemoney decimal(20,8) DEFAULT 0;
 	DECLARE v_account_nousemoney decimal(20,8) DEFAULT 0;
@@ -146,7 +147,7 @@ SUBSCRIBE:BEGIN
   		VALUES ( userid,transferid,v_borrow_id,v_money,v_repayment_capital,v_repayment_interest,v_repayment_account,0,0,o_userLevel,o_ratio,v_isvip,0,current_timestamp,addip,0);
 			
 			/** 更新账户资金 **/
-			UPDATE rocky_account SET USE_MONEY = USE_MONEY - v_money, NO_USE_MONEY = NO_USE_MONEY + v_money, DRAW_MONEY = DRAW_MONEY - v_transfer_draw_money, NO_DRAW_MONEY = NO_DRAW_MONEY - v_transfer_no_draw_money,collection=v_repayment_account WHERE USER_ID = userid;
+			UPDATE rocky_account SET USE_MONEY = USE_MONEY - v_money, NO_USE_MONEY = NO_USE_MONEY + v_money, DRAW_MONEY = DRAW_MONEY - v_transfer_draw_money, NO_DRAW_MONEY = NO_DRAW_MONEY - v_transfer_no_draw_money,collection=collection+v_repayment_account WHERE USER_ID = userid;
 
 			/**新增债权转让冻结log**/		
 			INSERT INTO rocky_accountlog (USER_ID,TYPE,TOTAL,MONEY,USE_MONEY,NO_USE_MONEY,COLLECTION,TO_USER,REMARK,ADDIP,ADDTIME,`DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
