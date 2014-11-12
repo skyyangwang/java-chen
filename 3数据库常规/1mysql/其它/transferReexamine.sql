@@ -40,7 +40,7 @@ TRANSFERREEXAMINE:BEGIN
 	DECLARE v_account_no_draw_money decimal(20,2);
 	DECLARE v_first_borrow_use_money decimal(20,2);
 
-
+	/* 自定义变量 */
 	DECLARE v_new_tender_id int;
 	DECLARE v_borrow_style int;
 	DECLARE v_cnum int;
@@ -160,7 +160,7 @@ TRANSFERREEXAMINE:BEGIN
 
 		/**新增债权转让成功log**/		
 		INSERT INTO rocky_accountlog (USER_ID,TYPE,TOTAL,MONEY,USE_MONEY,NO_USE_MONEY,COLLECTION,TO_USER,REMARK,ADDIP,ADDTIME,`DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
-			VALUES (v_transfer_user_id, 'transfer_success',v_account_total+v_transfer_account_real-v_transfer_manage_fee-v_transfer_capital,v_transfer_account_real-v_transfer_manage_fee,v_account_usemoney +v_transfer_account_real-v_transfer_manage_fee,v_account_nousemoney -v_transfer_capital,v_account_collection-v_no_account,v_transfer_userid,'债权转让成功，资金转入记录。',v_add_ip,current_date,v_account_draw_money, v_account_no_draw_money+v_transfer_account_real-v_transfer_manage_fee, v_first_borrow_use_money,v_borrow_id,v_borrow_name);
+			VALUES (v_transfer_user_id, 'transfer_success',v_account_total+v_transfer_account_real-v_transfer_manage_fee-v_transfer_capital,v_transfer_account_real-v_transfer_manage_fee,v_account_usemoney +v_transfer_account_real-v_transfer_manage_fee,v_account_nousemoney -v_transfer_capital,v_account_collection-v_no_account,v_transfer_userid,'债权转让成功，资金转入记录。',v_add_ip,UNIX_TIMESTAMP(),v_account_draw_money, v_account_no_draw_money+v_transfer_account_real-v_transfer_manage_fee, v_first_borrow_use_money,v_borrow_id,v_borrow_name);
 
 
 

@@ -61,7 +61,7 @@ TRANSFERCANCEL:BEGIN
 
 		/**新增债权转让撤销log,交易对方id为空-0**/		
 		INSERT INTO rocky_accountlog (USER_ID,TYPE,TOTAL,MONEY,USE_MONEY,NO_USE_MONEY,COLLECTION,TO_USER,REMARK,ADDIP,ADDTIME,`DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
-			VALUES (v_subscribe_user_id, 'transfer_cancel',v_account_total,v_subscribe_account,v_account_usemoney + v_subscribe_account,v_account_nousemoney - v_subscribe_account,v_account_collection-v_subscribe_repayment_account,0,'债权转让撤销，资金回滚',cancelip,current_date,v_account_draw_money, v_account_no_draw_money + v_subscribe_account, v_first_borrow_use_money,v_borrow_id,v_borrow_name);
+			VALUES (v_subscribe_user_id, 'transfer_cancel',v_account_total,v_subscribe_account,v_account_usemoney + v_subscribe_account,v_account_nousemoney - v_subscribe_account,v_account_collection-v_subscribe_repayment_account,0,'债权转让撤销，资金回滚',cancelip,UNIX_TIMESTAMP(),v_account_draw_money, v_account_no_draw_money + v_subscribe_account, v_first_borrow_use_money,v_borrow_id,v_borrow_name);
 
 
     end if;

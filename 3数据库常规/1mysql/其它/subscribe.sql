@@ -1,22 +1,19 @@
 drop procedure if exists  subscribe;  
-CREATE PROCEDURE `subscribe`(IN transferid BIGINT, IN tendermoney DECIMAL(20,8), IN userid BIGINT, IN addip VARCHAR(20), IN tenderType VARCHAR(1), OUT msg VARCHAR(5))
+CREATE PROCEDURE `subscribe`(IN transferid BIGINT, IN tendermoney DECIMAL(20,8), IN userid BIGINT, IN addip VARCHAR(20), IN tenderType VARCHAR(1), IN platformp BIGINT, OUT msg VARCHAR(5))
     COMMENT '债权转让-手动认购'
 SUBSCRIBE:BEGIN
+	/* 债权转让表变量 */
 	DECLARE v_borrow_id INT;
   DECLARE v_borrow_name varchar(100);
+	DECLARE v_tender_id int;
+	DECLARE v_capital decimal(20,8) DEFAULT 0;
 	DECLARE v_borrow_apr decimal(20,8) DEFAULT 0;
 	DECLARE v_borrow_timelimit INT;
 	DECLARE v_borrow_style INT;
-
-	DECLARE v_capital decimal(20,8) DEFAULT 0;
 	DECLARE v_account_real decimal(20,8) DEFAULT 0;
 	DECLARE v_transfer_account decimal(20,8) DEFAULT 0;
 	DECLARE v_transfer_account_yes decimal(20,8) DEFAULT 0;
 	DECLARE v_transfer_userid INT;
-
-	DECLARE v_transfer_draw_money decimal(20,8) DEFAULT 0;
-	DECLARE v_transfer_no_draw_money decimal(20,8) DEFAULT 0;
-	DECLARE v_transfer_remaind decimal(20,8) DEFAULT 0;
 
 	/* 账户表变量 */
 	DECLARE v_account_total decimal(20,8) DEFAULT 0;
@@ -24,11 +21,13 @@ SUBSCRIBE:BEGIN
 	DECLARE v_account_nousemoney decimal(20,8) DEFAULT 0;
 	DECLARE v_account_collection decimal(20,8) DEFAULT 0;
 	DECLARE v_first_borrow_use_money decimal(20,8) DEFAULT 0;
-
 	DECLARE v_draw_money decimal(20,8) DEFAULT 0;
 	DECLARE v_no_draw_money decimal(20,8) DEFAULT 0;
 
-	DECLARE v_tender_id int;
+	/* 自定义变量 */
+	DECLARE v_transfer_draw_money decimal(20,8) DEFAULT 0;
+	DECLARE v_transfer_no_draw_money decimal(20,8) DEFAULT 0;
+	DECLARE v_transfer_remaind decimal(20,8) DEFAULT 0;
 
 	DECLARE v_repayment_capital decimal(20,8) DEFAULT 0;
 	DECLARE v_repayment_interest decimal(20,8) DEFAULT 0;
@@ -44,11 +43,11 @@ SUBSCRIBE:BEGIN
   DECLARE v_isvip bigint;
 	DECLARE o_userLevel VARCHAR(10);
 	DECLARE o_ratio VARCHAR(10);
+
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION SET msg = '0000';
 	
-	/**投标方式（0：手动投标，1：自动投标，2：优先投标）---这里的为0；*/
 
-		SET v_money = tendermoney;
+	SET v_money = tendermoney;
 
 
   /**如果金额非法,退出存储过程*/
@@ -78,7 +77,7 @@ SUBSCRIBE:BEGIN
   	UPDATE rocky_b_transfer SET ACCOUNT_YES = ACCOUNT_YES+v_money,TENDER_TIMES = TENDER_TIMES + 1 WHERE id = transferid;
     SET v_transfer_account_yes = v_transfer_account_yes+v_money;
 
-	  /**投标方式（0：手动投标，1：自动投标，2：优先投标）*/
+
 		/**认购金额先从账户受限金额扣除，不够从可提现金额扣除；---下面是中间计算*/
 			IF v_no_draw_money > 0 THEN
 					IF v_no_draw_money >= v_money THEN
@@ -143,15 +142,15 @@ SUBSCRIBE:BEGIN
 	  CALL getUserLevelRatio(v_transfer_userid,o_userLevel,o_ratio);
     
     	/**新增认购记录**/
-  		INSERT INTO `rocky_b_subscribe` (`USER_ID`, `TRANSFER_ID`,BORROW_ID, `ACCOUNT`, `REPAYMENT_CAPITAL`, `REPAYMENT_INTEREST`, `REPAYMENT_ACCOUNT`, `DRAW_MONEY`, `NO_DRAW_MONEY`, `USER_LEVEL`, `RATIO`,`IS_VIP`, `STATUS`,  `ADD_TIME`,`ADD_IP`,`SUBSCRIBE_TYPE`) 
-  		VALUES ( userid,transferid,v_borrow_id,v_money,v_repayment_capital,v_repayment_interest,v_repayment_account,0,0,o_userLevel,o_ratio,v_isvip,0,current_timestamp,addip,0);
+  		INSERT INTO `rocky_b_subscribe` (`USER_ID`, `TRANSFER_ID`,BORROW_ID, `ACCOUNT`, `REPAYMENT_CAPITAL`, `REPAYMENT_INTEREST`, `REPAYMENT_ACCOUNT`, `DRAW_MONEY`, `NO_DRAW_MONEY`, `USER_LEVEL`, `RATIO`,`IS_VIP`, `STATUS`,  `ADD_TIME`,`ADD_IP`,`SUBSCRIBE_TYPE`,`PLATFORM`) 
+  		VALUES ( userid,transferid,v_borrow_id,v_money,v_repayment_capital,v_repayment_interest,v_repayment_account,0,0,o_userLevel,o_ratio,v_isvip,0,current_timestamp,addip,0,platformp);
 			
 			/** 更新账户资金 **/
 			UPDATE rocky_account SET USE_MONEY = USE_MONEY - v_money, NO_USE_MONEY = NO_USE_MONEY + v_money, DRAW_MONEY = DRAW_MONEY - v_transfer_draw_money, NO_DRAW_MONEY = NO_DRAW_MONEY - v_transfer_no_draw_money,collection=collection+v_repayment_account WHERE USER_ID = userid;
 
 			/**新增债权转让冻结log**/		
 			INSERT INTO rocky_accountlog (USER_ID,TYPE,TOTAL,MONEY,USE_MONEY,NO_USE_MONEY,COLLECTION,TO_USER,REMARK,ADDIP,ADDTIME,`DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
-			VALUES (userid, 'transfer_cold',v_account_total,v_money,v_account_usemoney-v_money,v_account_nousemoney+v_money,v_repayment_account,v_transfer_userid,'按手动认购方式认购，资金冻结成功。',addip,current_date,v_draw_money - v_transfer_draw_money, v_no_draw_money - v_transfer_no_draw_money, v_first_borrow_use_money,v_borrow_id,v_borrow_name);
+			VALUES (userid, 'transfer_cold',v_account_total,v_money,v_account_usemoney-v_money,v_account_nousemoney+v_money,v_repayment_account,v_transfer_userid,'按手动认购方式认购，资金冻结成功。',addip,UNIX_TIMESTAMP(),v_draw_money - v_transfer_draw_money, v_no_draw_money - v_transfer_no_draw_money, v_first_borrow_use_money,v_borrow_id,v_borrow_name);
 
 	
 	/**满标-修改债权转让表状态*/
