@@ -1,5 +1,5 @@
 drop procedure if exists  transferCancel;  
-CREATE PROCEDURE `transferCancel`(IN transferid BIGINT, IN userid BIGINT, IN cancelip VARCHAR(20), IN cancelRemark VARCHAR(100), OUT msg VARCHAR(5))
+CREATE PROCEDURE `transferCancel`(IN transferid BIGINT, IN userid BIGINT, IN cancelip VARCHAR(20), IN cancelRemark VARCHAR(100),IN transferStatus INT, OUT msg VARCHAR(5))
     COMMENT '债权转让-撤销操作'
 TRANSFERCANCEL:BEGIN
 
@@ -33,7 +33,7 @@ TRANSFERCANCEL:BEGIN
 	
 
 	/**更新债权转让表，状态：撤销**/
-		UPDATE rocky_b_transfer SET `STATUS` = 6,CANCEL_USER = userid,CANCEL_TIME = current_timestamp,CANCEL_IP = cancelip,CANCEL_REMARK = cancelRemark  WHERE ID = transferid;
+		UPDATE rocky_b_transfer SET `STATUS` = transferStatus,CANCEL_USER = userid,CANCEL_TIME = current_timestamp,CANCEL_IP = cancelip,CANCEL_REMARK = cancelRemark  WHERE ID = transferid;
     
 	/**更新认购表，TRANSFER_ID：传入的参数transferid**/
 		UPDATE rocky_b_subscribe SET `STATUS` = 2  WHERE TRANSFER_ID = transferid;

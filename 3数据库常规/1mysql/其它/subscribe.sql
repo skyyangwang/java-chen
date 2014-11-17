@@ -1,5 +1,5 @@
 drop procedure if exists  subscribe;  
-CREATE PROCEDURE `subscribe`(IN transferid BIGINT, IN tendermoney DECIMAL(20,8), IN userid BIGINT, IN addip VARCHAR(20), IN tenderType VARCHAR(1), IN platformp BIGINT, OUT msg VARCHAR(5))
+CREATE PROCEDURE `subscribe`(IN transferid BIGINT, IN tendermoney DECIMAL(20,8), IN userid BIGINT, IN addip VARCHAR(20), IN tenderType VARCHAR(1), IN platform BIGINT, OUT msg VARCHAR(5))
     COMMENT '债权转让-手动认购'
 SUBSCRIBE:BEGIN
 	/* 债权转让表变量 */
@@ -43,6 +43,7 @@ SUBSCRIBE:BEGIN
   DECLARE v_isvip bigint;
 	DECLARE o_userLevel VARCHAR(10);
 	DECLARE o_ratio VARCHAR(10);
+	DECLARE o_msg VARCHAR(5);
 
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION SET msg = '0000';
 	
@@ -143,7 +144,7 @@ SUBSCRIBE:BEGIN
     
     	/**新增认购记录**/
   		INSERT INTO `rocky_b_subscribe` (`USER_ID`, `TRANSFER_ID`,BORROW_ID, `ACCOUNT`, `REPAYMENT_CAPITAL`, `REPAYMENT_INTEREST`, `REPAYMENT_ACCOUNT`, `DRAW_MONEY`, `NO_DRAW_MONEY`, `USER_LEVEL`, `RATIO`,`IS_VIP`, `STATUS`,  `ADD_TIME`,`ADD_IP`,`SUBSCRIBE_TYPE`,`PLATFORM`) 
-  		VALUES ( userid,transferid,v_borrow_id,v_money,v_repayment_capital,v_repayment_interest,v_repayment_account,0,0,o_userLevel,o_ratio,v_isvip,0,current_timestamp,addip,0,platformp);
+  		VALUES ( userid,transferid,v_borrow_id,v_money,v_repayment_capital,v_repayment_interest,v_repayment_account,0,0,o_userLevel,o_ratio,v_isvip,0,current_timestamp,addip,0,platform);
 			
 			/** 更新账户资金 **/
 			UPDATE rocky_account SET USE_MONEY = USE_MONEY - v_money, NO_USE_MONEY = NO_USE_MONEY + v_money, DRAW_MONEY = DRAW_MONEY - v_transfer_draw_money, NO_DRAW_MONEY = NO_DRAW_MONEY - v_transfer_no_draw_money,collection=collection+v_repayment_account WHERE USER_ID = userid;
@@ -157,6 +158,15 @@ SUBSCRIBE:BEGIN
 	SET v_transfer_remaind = v_account_real - v_transfer_account_yes;
    IF v_transfer_account_yes = v_transfer_account THEN
       UPDATE rocky_b_transfer SET `STATUS` = 3,SUCCESS_TIME = current_timestamp  WHERE ID = transferid;
+
+		/**调用满标复审---转让和接收资金不匹配时，回滚认购的存储过程*/
+	  CALL getTransferReexamine(transferid,o_msg);
+
+		IF o_msg = '00012' THEN 
+			SET msg = '00012';
+	  LEAVE SUBSCRIBE;
+		END IF;
+
     END IF;
   
 

@@ -76,7 +76,7 @@ TRANSFERREEXAMINE:BEGIN
   	FROM rocky_b_subscribe WHERE TRANSFER_ID = transferid;
 
 	IF v_account_real != v_buy_moneysum THEN 
-			SET msg = '00002';
+			SET msg = '00012';
 	  LEAVE TRANSFERREEXAMINE;
   END IF;
 
