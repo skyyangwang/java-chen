@@ -1,0 +1,135 @@
+DROP PROCEDURE IF EXISTS `cancel_borrow`;
+CREATE PROCEDURE `cancel_borrow`(IN borrowid BIGINT,IN type BIGINT,OUT msg VARCHAR(5))
+    COMMENT '撤标'
+BEGIN
+  DECLARE v_borrow_name varchar(100);
+	DECLARE v_borrow_account_yes decimal(20,8) DEFAULT 0;
+	DECLARE v_borrow_status INT;
+	DECLARE v_remark VARCHAR (100);
+	
+	DECLARE v_tender_account decimal(20,8) DEFAULT 0;
+	DECLARE v_tender_draw_money decimal(20,8) DEFAULT 0;
+	DECLARE v_tender_no_draw_money decimal(20,8) DEFAULT 0;
+	DECLARE v_tender_id INT;
+	DECLARE v_tender_user_id INT;
+	DECLARE v_tender_status INT;
+	DECLARE v_tender_tender_type INT;
+	DECLARE v_tender_first_borrow_id INT;
+	DECLARE v_tender_count INT;
+
+	DECLARE v_tender_real_id INT;
+	
+	DECLARE v_account_total decimal(20,8) DEFAULT 0;
+	DECLARE v_account_usemoney decimal(20,8) DEFAULT 0;
+	DECLARE v_account_nousemoney decimal(20,8) DEFAULT 0;
+	DECLARE v_account_collection decimal(20,8) DEFAULT 0;
+	DECLARE v_account_first_borrow_use_money decimal(20,8) DEFAULT 0;
+	DECLARE v_account_draw_money decimal(20,8) DEFAULT 0;
+	DECLARE v_account_no_draw_money decimal(20,8) DEFAULT 0;
+
+	DECLARE v_auto_tender_id INT;
+	DECLARE v_uptime varchar(20);
+	DECLARE v_auto_tender_record_id INT;
+
+  DECLARE v_auto_invest_config_id INT;
+	
+	DECLARE s_index int default 0;
+	DECLARE t_error int default 0;
+	
+	-- 查询该标的投标记录，并存放到游标中
+	DECLARE c_tenderrecord CURSOR FOR
+	SELECT ID, ACCOUNT, USER_ID, `STATUS`, TENDER_TYPE, FIRST_BORROW_ID, DRAW_MONEY, NO_DRAW_MONEY FROM rocky_b_tenderrecord WHERE BORROW_ID = borrowid;
+
+	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET t_error= 1;
+	-- 查询该标的投标记录数量
+	SELECT count(id) INTO v_tender_count FROM rocky_b_tenderrecord WHERE BORROW_ID = borrowid;
+	
+	-- START TRANSACTION;
+	/**锁定borrow**/
+	SELECT NAME,ACCOUNT_YES,STATUS INTO v_borrow_name,v_borrow_account_yes,v_borrow_status FROM rocky_borrow WHERE id = borrowid FOR UPDATE;
+	IF v_borrow_status = 2 THEN
+			SET s_index = 0;
+
+      -- 撤标
+			IF type = 1 THEN
+					SET v_borrow_status = -2;
+					SET v_remark = '撤标';
+			ELSE
+					SET v_borrow_status = -1;  -- 流标
+					SET v_remark = '流标';
+			END IF;
+			
+			SET v_borrow_account_yes = 0;
+			-- 更新borrow
+			UPDATE rocky_borrow SET ACCOUNT_YES = v_borrow_account_yes,`STATUS` = v_borrow_status,CANCEL_TIME = unix_timestamp(),CANCEL_USER = 0, CANCEL_REMARK = v_remark WHERE id = borrowid;
+
+			OPEN c_tenderrecord;
+			WHILE s_index < v_tender_count AND t_error = 0 DO 
+					FETCH c_tenderrecord INTO v_tender_id, v_tender_account, v_tender_user_id, v_tender_status, v_tender_tender_type, v_tender_first_borrow_id, v_tender_draw_money, v_tender_no_draw_money;
+
+					-- 锁定投标人账户
+					SELECT TOTAL, USE_MONEY, NO_USE_MONEY, COLLECTION, FIRST_BORROW_USE_MONEY, DRAW_MONEY, NO_DRAW_MONEY 
+					INTO v_account_total, v_account_usemoney, v_account_nousemoney, v_account_collection, v_account_first_borrow_use_money, v_account_draw_money, v_account_no_draw_money
+					FROM rocky_account WHERE USER_ID = v_tender_user_id FOR UPDATE;
+
+					-- 解冻投标金额
+					IF v_tender_tender_type = 2 THEN
+							SET v_account_first_borrow_use_money = v_account_first_borrow_use_money + v_tender_account;
+							SET v_account_nousemoney = v_account_nousemoney - v_tender_account;
+					ELSE
+							SET v_account_usemoney = v_account_usemoney + v_tender_account;
+							SET v_account_nousemoney = v_account_nousemoney - v_tender_account;
+							SET v_account_draw_money = v_account_draw_money + v_tender_draw_money;
+							SET v_account_no_draw_money = v_account_no_draw_money + v_tender_no_draw_money;
+					END IF;
+					
+					-- 更新投标人账户
+					UPDATE rocky_account SET USE_MONEY = v_account_usemoney, NO_USE_MONEY = v_account_nousemoney, FIRST_BORROW_USE_MONEY = v_account_first_borrow_use_money, DRAW_MONEY = v_account_draw_money, NO_DRAW_MONEY = v_account_no_draw_money WHERE USER_ID = v_tender_user_id;
+					-- 更新投标记录
+					UPDATE rocky_b_tenderrecord SET `STATUS` = -1 WHERE ID = v_tender_id;
+					/**新增投标撤销log**/		
+					INSERT INTO rocky_accountlog (USER_ID, TYPE, TOTAL, MONEY, USE_MONEY, NO_USE_MONEY, COLLECTION, TO_USER, REMARK, ADDTIME, `DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
+					VALUES (v_tender_user_id, 'tender_failed', v_account_total, v_tender_account, v_account_usemoney, v_account_nousemoney, v_account_collection, -1 , v_remark, UNIX_TIMESTAMP(), v_account_draw_money, v_account_no_draw_money, v_account_first_borrow_use_money,borrowid,v_borrow_name);
+					
+					IF v_tender_tender_type = 2 AND v_tender_first_borrow_id IS NOT NULL THEN
+							-- 锁定优先投标计划最终认购表
+							SELECT id INTO v_tender_real_id FROM t_first_tender_real WHERE FIRST_BORROW_ID = v_tender_first_borrow_id AND USER_ID = v_tender_user_id FOR UPDATE;
+							-- 更新优先投标计划最终认购记录
+							UPDATE t_first_tender_real SET USE_MONEY = USE_MONEY + v_tender_account WHERE ID = v_tender_real_id;
+					END IF;
+
+					IF v_tender_tender_type = 1 THEN 
+							SELECT id, auto_tender_id, uptime INTO v_auto_tender_record_id, v_auto_tender_id, v_uptime from rocky_account_auto_invest_config_record where tender_record_id = v_tender_id and record_type = 2;
+							IF v_auto_tender_id IS NOT NULL THEN 
+                   SELECT IFNULL((SELECT ID FROM rocky_account_auto_invest_config WHERE ID = v_auto_tender_id AND `STATUS` = 1 FOR UPDATE),-1) INTO v_auto_invest_config_id;
+                   IF v_auto_invest_config_id != -1 THEN 
+											-- 还原排队时间
+											UPDATE rocky_account_auto_invest_config SET uptime = v_uptime WHERE ID = v_auto_tender_id;
+											-- 更新自动投标日志记录
+											UPDATE rocky_account_auto_invest_config_record SET REMARK = '本次自动投标被取消，还原排队时间' WHERE ID = v_auto_tender_record_id;
+									END IF;
+							END IF;
+					END IF;
+
+					/**借款入账大于净值额度的金额进入不可提*/
+					/**参数依次为：用户id、借款标id,借标标标题,记录ip,净值额度表类型,资金日志表类型，资金日志表备注*/
+					-- 撤标
+					IF type = 1 THEN
+							CALL deal_drawmoney_to_nodraw(v_tender_user_id,borrowid,v_borrow_name,'127.0.0.1',13,'net_draw_to_nodraw_borrow_cancel','借款标撤消之后，可提金额大于净值额度，可提金额转入受限金额。');  
+					ELSE
+							CALL deal_drawmoney_to_nodraw(v_tender_user_id,borrowid,v_borrow_name,'127.0.0.1',12,'net_draw_to_nodraw_borrow_flow','借款标流标之后，可提金额大于净值额度，可提金额转入受限金额。');  
+					END IF;
+
+					SET s_index = s_index + 1;
+			END WHILE;
+      CLOSE c_tenderrecord;
+	END IF;
+	
+	IF t_error=1 THEN 
+		SET msg = '00000';
+	  -- ROLLBACK; -- 事务回滚  
+  ELSE 
+		SET msg = '00001';
+	  -- COMMIT; -- 事务提交  
+  END IF;
+END

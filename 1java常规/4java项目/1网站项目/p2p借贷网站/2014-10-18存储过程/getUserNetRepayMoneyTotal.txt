@@ -1,0 +1,58 @@
+DROP PROCEDURE IF EXISTS `getUserNetRepayMoneyTotal`;
+CREATE PROCEDURE `getUserNetRepayMoneyTotal`(IN userid BIGINT, OUT netRepayMoneyTotal DECIMAL(20,8),OUT managerFeeTotal DECIMAL(20,8))
+    COMMENT '获取用户投标中的净值标预还总额和借款管理费'
+BEGIN
+		DECLARE v_count INT;
+		DECLARE v_borrow_id INT;
+		DECLARE v_borrow_account decimal(20,8) DEFAULT 0;
+		DECLARE v_borrow_style INT;
+		DECLARE v_borrow_time_limit int;
+		DECLARE v_borrow_borrowType int;
+		DECLARE v_borrow_apr decimal(20,8) DEFAULT 0;
+
+		DECLARE v_repayment_instalment_account decimal(20,8) DEFAULT 0;
+		DECLARE v_repayment_account decimal(20,8) DEFAULT 0;
+		DECLARE v_repayment_interest decimal(20,8) DEFAULT 0;
+		DECLARE managerFee decimal(20,8) DEFAULT 0;
+
+		DECLARE ss_index int default 0;
+		DECLARE tt_error int default 0;
+	
+		-- 查询招标中的净值标
+		DECLARE c_borrow CURSOR FOR
+		SELECT ID,STYLE,ACCOUNT,BORROWTYPE,TIME_LIMIT,APR FROM rocky_borrow where USER_ID = userid AND `STATUS` in(2,3) AND BORROWTYPE = 3;
+		DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET tt_error = 1;
+
+		SELECT count(id) INTO v_count FROM rocky_borrow WHERE USER_ID = userid AND `STATUS` in(2,3) AND BORROWTYPE = 3;
+		-- 净值标本息总额
+		SET netRepayMoneyTotal = 0;
+	  -- 借款管理费总额
+		SET managerFeeTotal = 0;
+
+		SET ss_index = 0;
+		OPEN c_borrow;
+		WHILE ss_index < v_count AND tt_error = 0 DO
+				FETCH c_borrow INTO v_borrow_id, v_borrow_style, v_borrow_account, v_borrow_borrowType, v_borrow_time_limit, v_borrow_apr;
+				-- 计算借款管理费
+				SET managerfee = getManagerFee(v_borrow_account,v_borrow_borrowType,v_borrow_time_limit,v_borrow_style);
+				SET managerFeeTotal = ROUND(managerFeeTotal + managerfee,2);
+
+				IF v_borrow_style = 1 THEN -- 等额本息
+						/**每月应还总额**/
+						SET v_repayment_instalment_account = ROUND((v_borrow_account*(v_borrow_apr/100/12)*POW(v_borrow_apr/100/12+1,v_borrow_time_limit)/(POW(v_borrow_apr/100/12+1,v_borrow_time_limit)-1)),2);
+						/** 应还总额 **/
+						SET v_repayment_account = ROUND(v_repayment_instalment_account*v_borrow_time_limit,2);
+						SET netRepayMoneyTotal = ROUND(netRepayMoneyTotal + v_repayment_account,2);
+				ELSEIF v_borrow_style = 4 THEN  -- 按天还款
+						/**利息**/
+						SET v_repayment_interest = ROUND(v_borrow_account*v_borrow_apr/100/360*v_borrow_time_limit,2);
+						/** 应还总额 **/
+						SET v_repayment_account = ROUND(v_repayment_interest + v_borrow_account,2);
+						SET netRepayMoneyTotal = ROUND(netRepayMoneyTotal + v_repayment_account,2);
+				END IF;
+				SET ss_index = ss_index + 1;
+		END WHILE;
+		CLOSE c_borrow;
+
+
+END

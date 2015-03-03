@@ -1,0 +1,56 @@
+DROP PROCEDURE IF EXISTS `deal_drawmoney_to_nodraw`;
+/**参数依次为：用户id、借款标id,借标标标题,记录ip,净值额度表类型,资金日志表类型，资金日志表备注*/
+CREATE PROCEDURE `deal_drawmoney_to_nodraw`(IN userid int,IN borrowid bigint,IN borrow_name VARCHAR(100),IN addip varchar(20),IN netmoneytype int,IN accountlogType varchar(100),IN accountlogRemark varchar(400))
+    COMMENT '可提金额大于净值额度，可提多出净额部分转入不可提'
+BEGIN
+	/**用户帐号信息*/
+  DECLARE v_account_total decimal(20,8) DEFAULT 0;
+  DECLARE v_account_usemoney decimal(20,8) DEFAULT 0;
+  DECLARE v_account_nousemoney decimal(20,8) DEFAULT 0;
+  DECLARE v_account_collection decimal(20,8) DEFAULT 0;
+	DECLARE v_account_draw_money decimal(20,8) DEFAULT 0;
+	DECLARE v_account_no_draw_money decimal(20,8) DEFAULT 0;
+  DECLARE v_account_first_borrow_use_money decimal(20,8) DEFAULT 0;
+  
+  /**用户净值额度数据及详情*/
+  DECLARE v_netMoneyLimit DECIMAL(20,8) DEFAULT 0;
+  DECLARE v_netWaitToPayCount INT DEFAULT 0;
+  DECLARE v_waitReceiveCapital DECIMAL(20,8) DEFAULT 0;
+  DECLARE v_tenderLockAccountTotal DECIMAL(20,8) DEFAULT 0;
+  DECLARE v_repaymentAccountTotal DECIMAL(20,8) DEFAULT 0;
+  DECLARE v_firstFreezeAccount DECIMAL(20,8) DEFAULT 0;
+  DECLARE v_netvalue_usemoney DECIMAL(20,8) DEFAULT 0;
+  DECLARE v_netvalue_firstBorrowUseMoney DECIMAL(20,8) DEFAULT 0;  
+  DECLARE v_netvalue_takeCashFreezeAccount DECIMAL(20,8) DEFAULT 0;  
+ 
+  DECLARE v_trade_money DECIMAL(20,8) DEFAULT 0;
+
+  /**根据用户id得到帐号信息并锁定account**/
+  SELECT TOTAL,USE_MONEY,NO_USE_MONEY,COLLECTION,DRAW_MONEY,NO_DRAW_MONEY,FIRST_BORROW_USE_MONEY INTO 
+  v_account_total,v_account_usemoney,v_account_nousemoney,v_account_collection,v_account_draw_money,v_account_no_draw_money,v_account_first_borrow_use_money
+  FROM rocky_account WHERE USER_ID = userid FOR UPDATE; 
+
+
+  /**大于净值额度的金额进入不可提*/
+        /**获得用户的净值额度和详细数据*/
+       CALL getUserNetMoneyLimit(userid,v_netMoneyLimit,v_netWaitToPayCount,v_waitReceiveCapital,v_tenderLockAccountTotal,v_repaymentAccountTotal,v_firstFreezeAccount,v_netvalue_usemoney,v_netvalue_firstBorrowUseMoney,v_netvalue_takeCashFreezeAccount);
+       IF v_account_draw_money > v_netMoneyLimit THEN
+           INSERT INTO t_netvalue_log 
+              (BORROW_ID, USER_ID, NET_MONEY_LIMIT, NET_WAIT_TOPAY_COUNT, WAIT_RECEIVE_CAPITAL, TENDER_LOCK_ACCOUNT_TOTAL, REPAYMENT_ACCOUNT_TOTAL, 
+               FIRST_FREEZE_ACCOUNT,USE_MONEY,FIRST_BORROW_USE_MONEY,TAKE_CASH_LOCK_ACCOUNT,ADDTIME, ADDIP,TYPE)
+              VALUES
+              (borrowid, userid, v_netMoneyLimit, v_netWaitToPayCount, v_waitReceiveCapital, v_tenderLockAccountTotal, v_repaymentAccountTotal, 
+               v_firstFreezeAccount,v_netvalue_usemoney,v_netvalue_firstBorrowUseMoney,v_netvalue_takeCashFreezeAccount, NOW(), addip,netmoneytype);
+
+            SET v_trade_money = v_account_draw_money - v_netMoneyLimit;
+           
+            SET v_account_no_draw_money = v_account_draw_money - v_netMoneyLimit + v_account_no_draw_money;
+            SET v_account_draw_money = v_netMoneyLimit;
+      
+           /**大于净值额度的可提金额进入不可提log**/
+           INSERT INTO rocky_accountlog (USER_ID,TYPE,TOTAL,MONEY,USE_MONEY,NO_USE_MONEY,COLLECTION,TO_USER,REMARK,ADDTIME,ADDIP,`DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
+           VALUES (userid, accountlogType,v_account_total,v_trade_money,v_account_usemoney,v_account_nousemoney,v_account_collection,userid,accountlogRemark,UNIX_TIMESTAMP(),addip,v_account_draw_money,v_account_no_draw_money,v_account_first_borrow_use_money,borrowid,borrow_name);
+           /*更新可提和不可提*/
+           UPDATE rocky_account set DRAW_MONEY = v_account_draw_money,NO_DRAW_MONEY = v_account_no_draw_money WHERE USER_ID = userid;
+       END IF; 
+END

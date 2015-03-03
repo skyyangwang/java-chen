@@ -1,0 +1,317 @@
+DROP PROCEDURE IF EXISTS `webpay`;
+CREATE PROCEDURE `webpay`(IN repaymentid bigint,IN addip varchar(20),OUT msg varchar(5))
+    COMMENT '垫付'
+BEGIN
+  DECLARE v_borrow_name varchar(100);
+  DECLARE v_borrow_account decimal(20,8) DEFAULT 0;
+	DECLARE v_borrow_account_yes decimal(20,8) DEFAULT 0;
+	DECLARE v_borrow_apr decimal(20,8) DEFAULT 0;
+	DECLARE v_borrow_borrowtype INT;
+	DECLARE v_borrow_timelimit INT;
+	DECLARE v_borrow_userid INT;
+  DECLARE v_borrow_style INT;
+
+  /**投资者应扣除的可提和不可提*/
+  DECLARE v_repay_draw_money decimal(20,8) DEFAULT 0; 
+  DECLARE v_repay_no_draw_money decimal(20,8) DEFAULT 0;
+
+	DECLARE v_account_total_borrower decimal(20,8) DEFAULT 0;
+	DECLARE v_account_usemoney_borrower decimal(20,8) DEFAULT 0;
+	DECLARE v_account_nousemoney_borrower decimal(20,8) DEFAULT 0;
+	DECLARE v_account_collection_borrower decimal(20,8) DEFAULT 0;
+
+  DECLARE v_account_total_investor decimal(20,8) DEFAULT 0;
+  DECLARE v_account_usemoney_investor decimal(20,8) DEFAULT 0;
+  DECLARE v_account_nousemoney_investor decimal(20,8) DEFAULT 0;
+  DECLARE v_account_collection_investor decimal(20,8) DEFAULT 0;
+  DECLARE v_account_first_borrow_use_money_investor decimal(20,8) DEFAULT 0;
+  DECLARE v_account_draw_money_investor decimal(20,8) DEFAULT 0;
+  DECLARE v_account_no_draw_money_investor decimal(20,8) DEFAULT 0;
+
+  DECLARE v_tender_id INT;
+  DECLARE v_tender_userid INT;
+  DECLARE v_tender_account decimal(20,8) DEFAULT 0;
+  DECLARE v_tender_interest decimal(20,8) DEFAULT 0;
+
+  DECLARE v_repayment_id bigint;
+  DECLARE v_repayment_status bigint;
+  DECLARE v_repayment_webstatus bigint;
+  DECLARE v_repayment_order bigint;
+  DECLARE v_repayment_borrowid bigint;
+  DECLARE v_repayment_repaymenttime varchar(20);
+  DECLARE v_repayment_repaymentaccount decimal(20,8) DEFAULT 0;
+  DECLARE v_repayment_interest decimal(20,8) DEFAULT 0;
+  DECLARE v_repayment_capital decimal(20,8) DEFAULT 0;
+  DECLARE v_repayment_addtime varchar(20);
+  DECLARE v_repayment_userid bigint;
+  DECLARE v_repayment_advanceYesaccount decimal(20,8) DEFAULT 0;
+
+  DECLARE v_collection_id bigint;
+  DECLARE v_collection_order bigint;
+  DECLARE v_collection_tendid bigint;
+  DECLARE v_collection_repaytime varchar(20);
+  DECLARE v_collection_repayaccount decimal(20,8) DEFAULT 0;
+  DECLARE v_collection_interest decimal(20,8) DEFAULT 0;
+  DECLARE v_collection_capital decimal(20,8) DEFAULT 0;
+  DECLARE v_collection_addtime varchar(20);
+  DECLARE v_collection_borrowid bigint;
+  DECLARE v_collection_userid bigint;
+  DECLARE v_collection_first_borrow_id bigint;
+  DECLARE v_collection_is_first_borrow int;
+  DECLARE v_collection_advanceYesaccount decimal(20,8) DEFAULT 0;
+
+  DECLARE v_isvip bigint;
+	
+  DECLARE done int DEFAULT 0;
+  DECLARE t_error int DEFAULT 0;
+
+  DECLARE inverestfee decimal(20,8) DEFAULT 0;
+  DECLARE ratio decimal(20,8) DEFAULT 0.1;
+
+  DECLARE v_borrowid bigint;
+  DECLARE v_lateday int;
+  DECLARE v_late_interest decimal(20,8);
+  DECLARE v_fine decimal(20,8) DEFAULT 0;
+  DECLARE v_repaymoney decimal(20,8) DEFAULT 0;
+
+  /**用户此次可用回款金额*/
+  DECLARE v_user_back_money decimal(20,8) DEFAULT 0;  
+  /**用户此次回款的直通车金额*/
+  DECLARE v_user_back_first_money decimal(20,8) DEFAULT 0;
+
+  DECLARE v_first_tender_real_use_money decimal(20,8) DEFAULT 0;
+  
+   /**待收记录**/
+  DECLARE c_collection CURSOR FOR 
+    SELECT c.ID,c.`ORDER`,c.TENDER_ID,c.REPAY_TIME,c.REPAY_ACCOUNT,c.INTEREST,c.CAPITAL,c.ADDTIME,c.BORROW_ID,c.USER_ID,c.FIRST_BORROW_ID,c.IS_FIRST_BORROW,t.RATIO,t.IS_VIP FROM
+    rocky_b_collectionrecord c,rocky_b_tenderrecord t WHERE c.BORROW_ID = (SELECT BORROW_ID FROM rocky_b_repaymentrecord WHERE ID = repaymentid) 
+    AND c.TENDER_ID = t.ID
+    AND c.`ORDER` = (SELECT `ORDER` FROM rocky_b_repaymentrecord WHERE ID = repaymentid);
+	DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done = 1;
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION SET msg = '00000';
+
+  START TRANSACTION;
+  
+  SELECT BORROW_ID INTO v_borrowid FROM rocky_b_repaymentrecord WHERE ID = repaymentid;
+  /**待还记录**/
+  SELECT ID,STATUS,WEBSTATUS ,`ORDER` ,BORROW_ID ,REPAYMENT_TIME ,REPAYMENT_ACCOUNT ,INTEREST ,CAPITAL ,ADDTIME ,USER_ID INTO
+    v_repayment_id ,  v_repayment_status,v_repayment_webstatus,v_repayment_order,v_repayment_borrowid,v_repayment_repaymenttime,
+    v_repayment_repaymentaccount,v_repayment_interest,v_repayment_capital,v_repayment_addtime,v_repayment_userid    
+  FROM rocky_b_repaymentrecord WHERE ID = repaymentid;
+
+  /**锁定borrow**/
+	SELECT NAME,ACCOUNT,ACCOUNT_YES,APR,BORROWTYPE,TIME_LIMIT,USER_ID,STYLE INTO 
+	v_borrow_name,v_borrow_account,v_borrow_account_yes,v_borrow_apr,v_borrow_borrowtype,v_borrow_timelimit,v_borrow_userid,v_borrow_style
+	FROM rocky_borrow WHERE id = v_borrowid FOR UPDATE;
+
+  /**计算逾期天数，逾期罚息**/
+  SET v_lateday = DATEDIFF(FROM_UNIXTIME(UNIX_TIMESTAMP(),'%Y-%m-%d'),FROM_UNIXTIME(v_repayment_repaymenttime,'%Y-%m-%d'));
+  IF v_lateday<0 THEN
+    set v_lateday = 0;
+  END IF;
+ 
+  OPEN c_collection;
+	REPEAT 
+		FETCH c_collection INTO v_collection_id,v_collection_order,v_collection_tendid,v_collection_repaytime,v_collection_repayaccount,v_collection_interest,v_collection_capital,v_collection_addtime,v_collection_borrowid,v_collection_userid,v_collection_first_borrow_id,v_collection_is_first_borrow,ratio,v_isvip;
+			IF NOT done THEN
+        /**锁定投资人account**/
+      	SELECT TOTAL,USE_MONEY,NO_USE_MONEY,COLLECTION,FIRST_BORROW_USE_MONEY,DRAW_MONEY,NO_DRAW_MONEY INTO 
+      	v_account_total_investor,v_account_usemoney_investor,v_account_nousemoney_investor,v_account_collection_investor,v_account_first_borrow_use_money_investor,v_account_draw_money_investor,v_account_no_draw_money_investor
+      	FROM rocky_account WHERE USER_ID = v_collection_userid FOR UPDATE; 
+        
+        /**抵押标**/
+        IF v_borrow_borrowtype = 2 THEN
+          /**
+            vip 还款金额为：本金+利息
+                                  非vip 还款金额为：本金
+          **/
+          IF v_isvip = 1 THEN
+            UPDATE rocky_b_tenderrecord set REPAYMENT_YESACCOUNT = REPAYMENT_YESACCOUNT+v_collection_repayaccount,
+									REPAYMENT_YESINTEREST = REPAYMENT_YESINTEREST+v_collection_interest WHERE id = v_collection_tendid;
+            SET v_repaymoney = v_collection_repayaccount;
+            SET v_late_interest = ROUND(v_collection_repayaccount*0.001*v_lateday,2);
+            SET v_repayment_advanceYesaccount = v_repayment_advanceYesaccount + v_collection_capital + v_collection_interest;
+            SET v_collection_advanceYesaccount = v_collection_capital + v_collection_interest;
+          ELSE
+            UPDATE rocky_b_tenderrecord set REPAYMENT_YESACCOUNT = REPAYMENT_YESACCOUNT+v_collection_capital,
+									REPAYMENT_YESINTEREST = REPAYMENT_YESINTEREST+0 WHERE id = v_collection_tendid;
+            SET v_repaymoney = v_collection_repayaccount-v_collection_interest;
+            SET v_late_interest = 0;
+            SET v_repayment_advanceYesaccount = v_repayment_advanceYesaccount + v_collection_capital;
+            SET v_collection_advanceYesaccount = v_collection_capital;
+          END IF; 
+
+        ELSEIF v_borrow_borrowtype = 3 THEN
+          /**净值标 垫付本金+利息**/
+          UPDATE rocky_b_tenderrecord set REPAYMENT_YESACCOUNT = REPAYMENT_YESACCOUNT+v_collection_capital+v_collection_interest,
+              REPAYMENT_YESINTEREST = REPAYMENT_YESINTEREST+v_collection_interest WHERE ID = v_collection_tendid;
+          SET v_repaymoney = v_collection_repayaccount;
+          IF v_isvip = 1 THEN
+            SET v_late_interest = ROUND(v_collection_repayaccount*0.002*v_lateday,2);
+            SET v_repayment_advanceYesaccount = v_repayment_advanceYesaccount + v_collection_capital + v_collection_interest;
+            SET v_collection_advanceYesaccount = v_collection_capital + v_collection_interest;
+          ELSE
+            SET v_late_interest = 0;
+            SET v_repayment_advanceYesaccount = v_repayment_advanceYesaccount + v_collection_capital + v_collection_interest;
+            SET v_collection_advanceYesaccount = v_collection_capital + v_collection_interest;
+          END IF;
+          
+        ELSEIF v_borrow_borrowtype = 1 THEN
+          /**
+          推荐标 
+          vip 还款金额为：本金+利息
+          非vip 还款金额为：本金
+          **/
+          IF v_isvip = 1 THEN
+            UPDATE rocky_b_tenderrecord set REPAYMENT_YESACCOUNT = REPAYMENT_YESACCOUNT+v_collection_repayaccount,
+									REPAYMENT_YESINTEREST = REPAYMENT_YESINTEREST+v_collection_interest WHERE id = v_collection_tendid;
+            SET v_repaymoney = v_collection_repayaccount;
+            SET v_late_interest = ROUND(v_collection_repayaccount*0.001*v_lateday,2);
+            SET v_repayment_advanceYesaccount = v_repayment_advanceYesaccount + v_collection_capital + v_collection_interest;
+            SET v_collection_advanceYesaccount = v_collection_capital + v_collection_interest;
+          ELSE
+            UPDATE rocky_b_tenderrecord set REPAYMENT_YESACCOUNT = REPAYMENT_YESACCOUNT+v_collection_capital,
+									REPAYMENT_YESINTEREST = REPAYMENT_YESINTEREST+0 WHERE id = v_collection_tendid;
+            SET v_repaymoney = v_collection_repayaccount-v_collection_interest;
+            SET v_repayment_advanceYesaccount = v_repayment_advanceYesaccount + v_collection_capital;
+            SET v_collection_advanceYesaccount = v_collection_capital;
+            SET v_late_interest = 0;
+          END IF; 
+       ELSEIF v_borrow_borrowtype = 5 THEN
+          /**
+                 担保标 
+          vip 还款金额为：本金+利息
+          非vip 还款金额为：本金
+          **/
+          IF v_isvip = 1 THEN
+            UPDATE rocky_b_tenderrecord set REPAYMENT_YESACCOUNT = REPAYMENT_YESACCOUNT+v_collection_repayaccount,
+									REPAYMENT_YESINTEREST = REPAYMENT_YESINTEREST+v_collection_interest WHERE id = v_collection_tendid;
+            SET v_repaymoney = v_collection_repayaccount;
+            SET v_late_interest = ROUND(v_collection_repayaccount*0.001*v_lateday,2);
+            SET v_repayment_advanceYesaccount = v_repayment_advanceYesaccount + v_collection_capital + v_collection_interest;
+            SET v_collection_advanceYesaccount = v_collection_capital + v_collection_interest;
+          ELSE
+            UPDATE rocky_b_tenderrecord set REPAYMENT_YESACCOUNT = REPAYMENT_YESACCOUNT+v_collection_capital,
+									REPAYMENT_YESINTEREST = REPAYMENT_YESINTEREST+0 WHERE id = v_collection_tendid;
+            SET v_repaymoney = v_collection_repayaccount-v_collection_interest;
+            SET v_late_interest = 0;
+            SET v_repayment_advanceYesaccount = v_repayment_advanceYesaccount + v_collection_capital;
+            SET v_collection_advanceYesaccount = v_collection_capital;
+          END IF; 
+          
+        ELSEIF v_borrow_borrowtype = 4 THEN
+          /**
+         	 秒标
+          vip 还款金额为：本金+利息
+          非vip 还款金额为：本金
+          **/
+          IF v_isvip = 1 THEN
+            UPDATE rocky_b_tenderrecord set REPAYMENT_YESACCOUNT = REPAYMENT_YESACCOUNT+v_collection_repayaccount,
+									REPAYMENT_YESINTEREST = REPAYMENT_YESINTEREST+v_collection_interest WHERE id = v_collection_tendid;
+            SET v_repaymoney = v_collection_repayaccount;
+            SET v_late_interest = ROUND(v_collection_repayaccount*0.001*v_lateday,2);
+            SET v_repayment_advanceYesaccount = v_repayment_advanceYesaccount + v_collection_capital + v_collection_interest;
+            SET v_collection_advanceYesaccount = v_collection_capital + v_collection_interest;
+          ELSE
+            UPDATE rocky_b_tenderrecord set REPAYMENT_YESACCOUNT = REPAYMENT_YESACCOUNT+v_collection_capital,
+									REPAYMENT_YESINTEREST = REPAYMENT_YESINTEREST+0 WHERE id = v_collection_tendid;
+            SET v_repaymoney = v_collection_repayaccount-v_collection_interest;
+            SET v_late_interest = 0;
+            SET v_repayment_advanceYesaccount = v_repayment_advanceYesaccount + v_collection_capital;
+            SET v_collection_advanceYesaccount = v_collection_capital;
+          END IF; 
+
+        END IF;
+
+        /**更新待收记录状态为网站垫付**/
+        UPDATE rocky_b_collectionrecord set REPAY_YESACCOUNT = v_collection_advanceYesaccount,STATUS = 2,
+          ADVANCE_YESACCOUNT=v_collection_advanceYesaccount,ADVANCETIME = CURRENT_TIMESTAMP(),
+          LATE_DAYS = v_lateday,LATE_INTEREST = v_late_interest WHERE ID = v_collection_id;
+
+		    /**判断是否是直通车投的标且未失效,回款金额为待收利息*/
+	      IF (v_collection_first_borrow_id IS NOT NULL) AND v_collection_is_first_borrow=1 THEN 
+			  SELECT USE_MONEY INTO v_first_tender_real_use_money FROM t_first_tender_real WHERE FIRST_BORROW_ID = v_collection_first_borrow_id AND USER_ID = v_collection_userid FOR UPDATE;  
+			  /**待收本金回到直通车可用余额中*/
+              UPDATE t_first_tender_real SET USE_MONEY = USE_MONEY + v_collection_capital WHERE FIRST_BORROW_ID = v_collection_first_borrow_id AND USER_ID = v_collection_userid;
+			  /*直通车回款金额为本金*/
+              SET v_user_back_first_money = v_collection_capital;
+              /**如果是VIP,且是净值标,返回金额为利息，否则返回利息为0*/
+			  IF v_isvip = 1 THEN
+				  /**可用回款金额为利息,*/
+				 SET v_user_back_money = v_collection_interest;
+              ELSE 
+                 SET v_user_back_money = 0;
+              END IF;
+        ELSE
+		    /**回款金额为根据不同标种和是否计算出来的待收总额*/
+		    SET v_user_back_money = v_repaymoney;
+            SET v_user_back_first_money = 0;
+        END IF;				
+
+        /**投标人还款入账**/
+        UPDATE rocky_account  SET USE_MONEY = USE_MONEY + v_user_back_money,COLLECTION = COLLECTION-v_repaymoney,DRAW_MONEY = DRAW_MONEY+v_user_back_money,FIRST_BORROW_USE_MONEY = FIRST_BORROW_USE_MONEY + v_user_back_first_money
+          WHERE USER_ID = v_collection_userid;
+        SET v_account_collection_investor = v_account_collection_investor-v_repaymoney; 
+        SET v_account_usemoney_investor = v_account_usemoney_investor+v_user_back_money;
+        SET v_account_draw_money_investor = v_account_draw_money_investor+v_user_back_money;
+        SET v_account_first_borrow_use_money_investor = v_account_first_borrow_use_money_investor+v_user_back_first_money;
+         
+        INSERT INTO rocky_accountlog (USER_ID,TYPE,TOTAL,MONEY,USE_MONEY,NO_USE_MONEY,COLLECTION,TO_USER,REMARK,ADDTIME,ADDIP,`DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
+          VALUES (v_collection_userid, 'repayment_back',v_account_total_investor,
+                  v_repaymoney,v_account_usemoney_investor,v_account_nousemoney_investor,v_account_collection_investor,v_borrow_userid,
+                  '还款入账。',UNIX_TIMESTAMP(),addip,v_account_draw_money_investor,v_account_no_draw_money_investor,v_account_first_borrow_use_money_investor,v_borrowid,v_borrow_name);
+        
+        /**扣除利息管理费**/
+        IF v_borrow_borrowtype = 2 OR v_borrow_borrowtype = 1 OR v_borrow_borrowtype = 5 THEN 
+          IF v_isvip = 1 THEN 
+              /**利息管理费**/
+             SET inverestfee = ROUND(v_collection_interest*ratio,2);
+              /**投资者扣还利息管理费时应扣除的可提和不可提*/
+	          CALL getDeductYesNoDrawMoney(v_account_no_draw_money_investor,inverestfee,v_repay_no_draw_money,v_repay_draw_money);
+
+
+            UPDATE rocky_account  SET TOTAL = TOTAL - inverestfee,USE_MONEY = USE_MONEY - inverestfee,DRAW_MONEY=DRAW_MONEY-v_repay_draw_money,NO_DRAW_MONEY = NO_DRAW_MONEY - v_repay_no_draw_money 
+            WHERE USER_ID = v_collection_userid;
+            SET v_account_total_investor = v_account_total_investor - inverestfee;
+            SET v_account_usemoney_investor = v_account_usemoney_investor - inverestfee;
+            SET v_account_draw_money_investor = v_account_draw_money_investor - v_repay_draw_money;
+            SET v_account_no_draw_money_investor = v_account_no_draw_money_investor - v_repay_no_draw_money;
+
+            INSERT INTO rocky_accountlog (USER_ID,TYPE,TOTAL,MONEY,USE_MONEY,NO_USE_MONEY,COLLECTION,TO_USER,REMARK,ADDTIME,ADDIP,`DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
+              VALUES (v_collection_userid, 'inverest_fee',v_account_total_investor,
+                  inverestfee,v_account_usemoney_investor,v_account_nousemoney_investor,v_account_collection_investor,v_borrow_userid,
+                  '利息管理费扣除成功。',UNIX_TIMESTAMP(),addip,v_account_draw_money_investor,v_account_no_draw_money_investor,v_account_first_borrow_use_money_investor,v_borrowid,v_borrow_name);
+          ELSE 
+            UPDATE rocky_account  SET TOTAL = TOTAL - v_collection_interest,COLLECTION  = COLLECTION - v_collection_interest 
+              WHERE USER_ID = v_collection_userid;
+            INSERT INTO rocky_accountlog (USER_ID,TYPE,TOTAL,MONEY,USE_MONEY,NO_USE_MONEY,COLLECTION,TO_USER,REMARK,ADDTIME,ADDIP,`DRAW_MONEY`,`NO_DRAW_MONEY`,FIRST_BORROW_USE_MONEY,BORROW_ID, BORROW_NAME)
+              VALUES (v_collection_userid, 'no_vip_no_interest',v_account_total_investor-v_collection_interest,
+                  v_collection_interest,v_account_usemoney_investor ,v_account_nousemoney_investor,v_account_collection_investor - v_collection_interest,v_borrow_userid,
+                  '您是非VIP用户，不垫付利息。',UNIX_TIMESTAMP(),addip,v_account_draw_money_investor,v_account_no_draw_money_investor,v_account_first_borrow_use_money_investor,v_borrowid,v_borrow_name);
+          END IF;
+        END IF;
+            
+        /**更新标的状态为已垫付*/
+        UPDATE rocky_borrow rb SET rb.STATUS = 42 WHERE rb.ID = v_borrowid;
+        
+      /**还款入账大于净值额度的金额进入不可提*/
+      /**参数依次为：用户id、借款标id,借标标标题,记录ip,净值额度表类型,资金日志表类型，资金日志表备注*/
+      CALL deal_drawmoney_to_nodraw(v_collection_userid,v_borrowid,v_borrow_name,addip,4,'net_draw_to_nodraw_webpay_repayment_back','垫付入账之后,可提金额大于净值额度，可提金额转入受限金额。');  
+      
+      END IF;
+		  UNTIL done 
+  END REPEAT;
+  CLOSE c_collection; 
+    
+  /**借款者的罚息永远是0.002*/
+  SET v_late_interest = ROUND(v_repayment_repaymentaccount*0.002*v_lateday,2);
+    /**更新待还**/
+  UPDATE rocky_b_repaymentrecord  SET WEBSTATUS=1,
+    ADVANCE_YESACCOUNT=v_repayment_advanceYesaccount, ADVANCETIME=CURRENT_TIMESTAMP(),
+    LATE_DAYS = v_lateday,LATE_INTEREST = v_late_interest WHERE ID = repaymentid;
+
+		SET msg = '00001';
+  
+
+END

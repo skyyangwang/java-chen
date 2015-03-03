@@ -1,0 +1,70 @@
+DROP PROCEDURE IF EXISTS `getUserNetMoneyLimit`;
+/**参数依次为：用户id、净值额度、待还款的净值标数量、待收本金、投标冻结、待还总额、投标直通车冻结金额*/
+CREATE PROCEDURE `getUserNetMoneyLimit`(IN userid BIGINT, OUT netMoneyLimit DECIMAL(20,8),OUT netWaitToPayCount INT,
+     OUT waitReceiveCapital DECIMAL(20,8),OUT tenderLockAccountTotal DECIMAL(20,8),OUT repaymentAccountTotal DECIMAL(20,8),OUT firstFreezeAccount DECIMAL(20,8),
+     OUT v_netvalue_usemoney DECIMAL(20,8),OUT v_netvalue_firstBorrowUseMoney DECIMAL(20,8),OUT takeCashFreezeAccount DECIMAL(20,8))
+    COMMENT '获得用户的净值额度和详细数据'
+BEGIN	
+
+    DECLARE v_account_use_money DECIMAL(20,8) DEFAULT 0;
+    DECLARE v_account_first_borrow_use_money DECIMAL(20,8) DEFAULT 0;
+
+    /**初始化数据，置为0*/
+    SET netMoneyLimit = 0;
+    SET netWaitToPayCount = 0;
+    SET waitReceiveCapital = 0;
+    SET tenderLockAccountTotal = 0;
+    SET repaymentAccountTotal = 0;
+    SET firstFreezeAccount = 0;
+    SET v_netvalue_usemoney = 0;
+    SET v_netvalue_firstBorrowUseMoney = 0;
+    SET takeCashFreezeAccount = 0;
+    
+    
+		/**查询帐号总额并赋值到净值额度*/
+    select TOTAL,USE_MONEY,FIRST_BORROW_USE_MONEY INTO netMoneyLimit,v_netvalue_usemoney,v_netvalue_firstBorrowUseMoney 
+    FROM rocky_account a WHERE a.USER_ID = userid;
+
+    /*待还款的净值标数量并赋值*/
+    SELECT count(id) INTO netWaitToPayCount
+		FROM ROCKY_BORROW rb 
+		where rb.USER_ID = userid  
+		and borrowType = 3 
+		and (status = 2 or status = 3 or status = 4 or status = 42);
+ 
+    /*如果有待还净值标*/
+    IF (netWaitToPayCount IS NOT NULL) AND netWaitToPayCount > 0 THEN
+			/**待收本金*/
+      SELECT ROUND(IFNULL(SUM(C.CAPITAL),0),2) INTO waitReceiveCapital
+  		FROM ROCKY_B_COLLECTIONRECORD C,rocky_b_tenderrecord t
+	  	WHERE C.STATUS = 0	AND c.TENDER_ID = t.ID AND t.USER_ID = userid;
+
+      /**投标冻结*/
+      SELECT ROUND(IFNULL(SUM(b.ACCOUNT),0),2) INTO tenderLockAccountTotal
+		  FROM rocky_b_tenderrecord b,rocky_borrow d  WHERE 1=1 and b.STATUS = 0 AND b.USER_ID = userid AND d.ID = b.BORROW_ID 
+		  AND (d.STATUS = 2 or d.STATUS = 3);
+
+      /*待还总额*/
+ 		  SELECT ROUND(IFNULL(SUM(r.REPAYMENT_ACCOUNT),0),2) INTO repaymentAccountTotal
+		  from rocky_b_repaymentrecord r,ROCKY_BORROW b 
+		  WHERE r.BORROW_ID = b.ID 	AND (b.STATUS = 4 or b.STATUS = 42) AND r.STATUS = 0 and b.USER_ID = userid;     
+ 
+      /**投标直通车冻结金额*/
+ 			SELECT ROUND(IFNULL(SUM(b.ACCOUNT),0),2) INTO firstFreezeAccount
+			FROM t_first_tender_detail b WHERE 1=1 and b.STATUS = 0	AND b.USER_ID = userid;
+       /** 净值额度=（待收本金+可用资金+投标直通车可用余额+投标直通车冻结金额+投标冻结）*0.8-待还本息*/
+      SET netMoneyLimit = ROUND((waitReceiveCapital+v_netvalue_usemoney+v_netvalue_firstBorrowUseMoney+firstFreezeAccount+tenderLockAccountTotal)*0.8-repaymentAccountTotal,2);
+    ELSE
+      /**计算投现冻结**/
+		SELECT ROUND(IFNULL(SUM(C.TOTAL),0),2) INTO takeCashFreezeAccount
+		FROM rocky_cashrecord C 
+		WHERE 1=1
+		and (C.STATUS = 0 OR C.STATUS = 1) 
+		AND C.USER_ID = userid;
+      /** 净值额度= 资产总额 - 提现冻结*/
+      SET netMoneyLimit = ROUND(netMoneyLimit-takeCashFreezeAccount,2);
+	   	
+		        
+    END IF;
+
+END
