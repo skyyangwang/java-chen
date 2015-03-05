@@ -1,0 +1,23 @@
+修改源码，
+css中，将大图片对应的高度设置为630px；
+
+
+页面，div中，自己写图片：
+<li class="bannerbg" data-sPic="images/nianbao/nianbao-01_s.jpg">
+      <div class="bannerbg_main">
+        <img src="images/nianbao/nianbao-01.jpg" style="height:620px;width:1100px;margin-left:130px;margin-top:10px;"></img>
+      </div>
+    </li>
+
+
+做大图对应的小图；---145*65；
+
+
+进一步：给大图界面中也加上左右点击按钮；
+<a id="left_img_btn2" class="s_pre2" href="javascript:void(0)"></a>
+<a id="right_img_btn2" class="s_next2" href="javascript:void(0)"></a>
+---使用的小图片，页面位置；
+样式，
+.s_pre2,.s_next2{z-index:100;position:absolute;display:block;width:48px!important;height:76px!important;top:50%;margin-top:-37px;}
+a.s_pre2{background:url(../images/nianbao/home/arrow_l_on.png) no-repeat left top;left:130px;}
+a.s_next2{background:url(../images/nianbao/home/arrow_r_on.png) no-repeat right top;right:118px;}
